@@ -1,5 +1,3 @@
-using System;
-
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
 {
     /// <summary>Input for the ReturnVehicle use case.</summary>
@@ -9,12 +7,12 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
         /// Initializes a new instance of the <see cref="ReturnVehicleInput"/> class.
         /// </summary>
         /// <param name="vehicleId">The vehicle to return.</param>
-        public ReturnVehicleInput(Guid vehicleId)
+        public ReturnVehicleInput(long vehicleId)
         {
-            VehicleId = vehicleId;
+            this.VehicleId = vehicleId;
         }
 
         /// <summary>Gets the vehicle identifier.</summary>
-        public Guid VehicleId { get; }
+        public long VehicleId { get; }
     }
 }

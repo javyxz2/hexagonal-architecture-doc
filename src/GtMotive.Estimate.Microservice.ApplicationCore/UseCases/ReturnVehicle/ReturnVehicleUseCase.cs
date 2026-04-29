@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
+using GtMotive.Estimate.Microservice.Domain;
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
 
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
@@ -42,6 +43,11 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
                 return;
             }
 
+            if (DateTime.UtcNow < rental.PlannedEndDate)
+            {
+                throw new DomainException($"Vehicle cannot be returned before the planned end date ({rental.PlannedEndDate:yyyy-MM-dd}).");
+            }
+
             var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId);
             if (vehicle == null)
             {
@@ -55,7 +61,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
             await _rentalRepository.UpdateAsync(rental);
             await _vehicleRepository.UpdateAsync(vehicle);
 
-            _outputPort.StandardHandle(new ReturnVehicleOutput(rental.RentalId, rental.EndDate!.Value));
+            _outputPort.StandardHandle(new ReturnVehicleOutput(rental.RentalId, rental.ReturnedDate!.Value));
         }
     }
 }

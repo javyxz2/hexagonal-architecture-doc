@@ -9,10 +9,14 @@ using GtMotive.Estimate.Microservice.Domain.Interfaces;
 
 namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
 {
+    /// <summary>
+    /// Thread-safe in-memory implementation of <see cref="IRentalRepository"/>.
+    /// </summary>
     public sealed class InMemoryRentalRepository : IRentalRepository
     {
         private readonly ConcurrentDictionary<Guid, Rental> _store = new();
 
+        /// <inheritdoc />
         public Task AddAsync(Rental rental)
         {
             ArgumentNullException.ThrowIfNull(rental);
@@ -20,18 +24,21 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
             return Task.CompletedTask;
         }
 
-        public Task<Rental?> GetActiveByVehicleIdAsync(Guid vehicleId)
+        /// <inheritdoc />
+        public Task<Rental?> GetActiveByVehicleIdAsync(long vehicleId)
         {
             var rental = _store.Values.FirstOrDefault(r => r.VehicleId == vehicleId && r.IsActive);
             return Task.FromResult(rental);
         }
 
+        /// <inheritdoc />
         public Task<bool> HasActiveRentalAsync(string customerId)
         {
             bool result = _store.Values.Any(r => r.CustomerId == customerId && r.IsActive);
             return Task.FromResult(result);
         }
 
+        /// <inheritdoc />
         public Task UpdateAsync(Rental rental)
         {
             ArgumentNullException.ThrowIfNull(rental);

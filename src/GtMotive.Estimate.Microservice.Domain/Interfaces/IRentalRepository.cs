@@ -1,6 +1,5 @@
 #nullable enable
 
-using System;
 using System.Threading.Tasks;
 
 using GtMotive.Estimate.Microservice.Domain.Entities;
@@ -20,7 +19,7 @@ namespace GtMotive.Estimate.Microservice.Domain.Interfaces
         /// <summary>Gets the active rental for a specific vehicle.</summary>
         /// <param name="vehicleId">The vehicle identifier.</param>
         /// <returns>The active rental if found; otherwise null.</returns>
-        Task<Rental?> GetActiveByVehicleIdAsync(Guid vehicleId);
+        Task<Rental?> GetActiveByVehicleIdAsync(long vehicleId);
 
         /// <summary>Determines whether a customer has an active rental.</summary>
         /// <param name="customerId">The customer identifier.</param>

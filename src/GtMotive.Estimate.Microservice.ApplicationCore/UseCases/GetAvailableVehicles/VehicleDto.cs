@@ -1,5 +1,3 @@
-using System;
-
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAvailableVehicles
 {
     /// <summary>DTO representing a vehicle.</summary>
@@ -13,17 +11,17 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAvailableVe
         /// <param name="model">Model.</param>
         /// <param name="licensePlate">License plate.</param>
         /// <param name="manufactureYear">Year of manufacture.</param>
-        public VehicleDto(Guid vehicleId, string brand, string model, string licensePlate, int manufactureYear)
+        public VehicleDto(long vehicleId, string brand, string model, string licensePlate, int manufactureYear)
         {
-            VehicleId = vehicleId;
-            Brand = brand;
-            Model = model;
-            LicensePlate = licensePlate;
-            ManufactureYear = manufactureYear;
+            this.VehicleId = vehicleId;
+            this.Brand = brand;
+            this.Model = model;
+            this.LicensePlate = licensePlate;
+            this.ManufactureYear = manufactureYear;
         }
 
         /// <summary>Gets the vehicle identifier.</summary>
-        public Guid VehicleId { get; }
+        public long VehicleId { get; }
 
         /// <summary>Gets the vehicle brand.</summary>
         public string Brand { get; }

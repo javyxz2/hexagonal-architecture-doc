@@ -7,9 +7,13 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence.Configuratio
 {
     internal sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
     {
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
             builder.HasKey(v => v.VehicleId);
+
+            builder.Property(v => v.VehicleId)
+                .ValueGeneratedOnAdd();
 
             builder.Property(v => v.Brand)
                 .IsRequired()

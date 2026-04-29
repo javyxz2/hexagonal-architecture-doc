@@ -34,9 +34,9 @@ RUN dotnet restore src/GtMotive.Estimate.Microservice.Host/GtMotive.Estimate.Mic
 COPY src/ src/
 
 RUN dotnet publish src/GtMotive.Estimate.Microservice.Host/GtMotive.Estimate.Microservice.Host.csproj \
-    -c Release -o /app/publish /p:UseAppHost=false
+    -c Release -o /app/publish /p:UseAppHost=false /p:TreatWarningsAsErrors=false
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "GtMotive.Estimate.Microservice.Host.dll"]

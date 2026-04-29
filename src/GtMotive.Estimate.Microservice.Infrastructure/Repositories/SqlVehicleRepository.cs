@@ -26,7 +26,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<Vehicle?> GetByIdAsync(Guid vehicleId)
+        public async Task<Vehicle?> GetByIdAsync(long vehicleId)
         {
             return await context.Vehicles.FindAsync(vehicleId);
         }

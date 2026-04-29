@@ -25,10 +25,10 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<Rental?> GetActiveByVehicleIdAsync(Guid vehicleId)
+        public async Task<Rental?> GetActiveByVehicleIdAsync(long vehicleId)
         {
             return await context.Rentals
-                .Where(r => r.VehicleId == vehicleId && r.EndDate == null)
+                .Where(r => r.VehicleId == vehicleId && r.ReturnedDate == null)
                 .FirstOrDefaultAsync();
         }
 
@@ -36,7 +36,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
         public async Task<bool> HasActiveRentalAsync(string customerId)
         {
             return await context.Rentals
-                .AnyAsync(r => r.CustomerId == customerId && r.EndDate == null);
+                .AnyAsync(r => r.CustomerId == customerId && r.ReturnedDate == null);
         }
 
         /// <inheritdoc />

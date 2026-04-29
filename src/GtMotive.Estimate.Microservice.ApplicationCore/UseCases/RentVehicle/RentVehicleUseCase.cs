@@ -37,6 +37,11 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         {
             ArgumentNullException.ThrowIfNull(input);
 
+            if (input.PlannedEndDate <= input.StartDate)
+            {
+                throw new DomainException("Planned end date must be after the start date.");
+            }
+
             bool hasActiveRental = await _rentalRepository.HasActiveRentalAsync(input.CustomerId);
             if (hasActiveRental)
             {
@@ -55,13 +60,18 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 throw new DomainException("Vehicle is not available for renting.");
             }
 
-            var rental = new Rental(vehicle.VehicleId, input.CustomerId);
+            var rental = new Rental(vehicle.VehicleId, input.CustomerId, input.StartDate, input.PlannedEndDate);
             vehicle.MarkAsRented();
 
             await _rentalRepository.AddAsync(rental);
             await _vehicleRepository.UpdateAsync(vehicle);
 
-            _outputPort.StandardHandle(new RentVehicleOutput(rental.RentalId, rental.VehicleId, rental.CustomerId, rental.StartDate));
+            _outputPort.StandardHandle(new RentVehicleOutput(
+                rental.RentalId,
+                rental.VehicleId,
+                rental.CustomerId,
+                rental.StartDate,
+                rental.PlannedEndDate));
         }
     }
 }

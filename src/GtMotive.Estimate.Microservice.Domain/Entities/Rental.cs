@@ -12,12 +12,15 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// </summary>
         /// <param name="vehicleId">The vehicle being rented.</param>
         /// <param name="customerId">The customer renting the vehicle.</param>
-        public Rental(Guid vehicleId, string customerId)
+        /// <param name="startDate">The planned start date of the rental.</param>
+        /// <param name="plannedEndDate">The planned end date of the rental.</param>
+        public Rental(long vehicleId, string customerId, DateTime startDate, DateTime plannedEndDate)
         {
-            RentalId = Guid.NewGuid();
-            VehicleId = vehicleId;
-            CustomerId = customerId;
-            StartDate = DateTime.UtcNow;
+            this.RentalId = Guid.NewGuid();
+            this.VehicleId = vehicleId;
+            this.CustomerId = customerId;
+            this.StartDate = startDate;
+            this.PlannedEndDate = plannedEndDate;
         }
 
         /// <summary>
@@ -32,21 +35,24 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         public Guid RentalId { get; private set; }
 
         /// <summary>Gets the identifier of the rented vehicle.</summary>
-        public Guid VehicleId { get; private set; }
+        public long VehicleId { get; private set; }
 
         /// <summary>Gets the identifier of the customer.</summary>
         public string CustomerId { get; private set; }
 
-        /// <summary>Gets the start date of the rental.</summary>
+        /// <summary>Gets the planned start date of the rental.</summary>
         public DateTime StartDate { get; private set; }
 
-        /// <summary>Gets the end date of the rental, or null if still active.</summary>
-        public DateTime? EndDate { get; private set; }
+        /// <summary>Gets the planned end date of the rental.</summary>
+        public DateTime PlannedEndDate { get; private set; }
+
+        /// <summary>Gets the actual return date, or null if still active.</summary>
+        public DateTime? ReturnedDate { get; private set; }
 
         /// <summary>Gets a value indicating whether the rental is still active.</summary>
-        public bool IsActive => EndDate == null;
+        public bool IsActive => this.ReturnedDate == null;
 
-        /// <summary>Completes the rental by setting the end date.</summary>
-        public void Complete() => EndDate = DateTime.UtcNow;
+        /// <summary>Completes the rental by recording the actual return date.</summary>
+        public void Complete() => this.ReturnedDate = DateTime.UtcNow;
     }
 }

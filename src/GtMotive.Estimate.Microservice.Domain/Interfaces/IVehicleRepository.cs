@@ -1,6 +1,5 @@
 #nullable enable
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,7 +20,7 @@ namespace GtMotive.Estimate.Microservice.Domain.Interfaces
         /// <summary>Gets a vehicle by its identifier.</summary>
         /// <param name="vehicleId">The vehicle identifier.</param>
         /// <returns>The vehicle if found; otherwise null.</returns>
-        Task<Vehicle?> GetByIdAsync(Guid vehicleId);
+        Task<Vehicle?> GetByIdAsync(long vehicleId);
 
         /// <summary>Gets all available vehicles.</summary>
         /// <returns>A read-only list of available vehicles.</returns>

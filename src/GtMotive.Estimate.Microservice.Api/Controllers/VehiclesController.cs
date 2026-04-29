@@ -34,6 +34,17 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         private readonly IUseCase<ReturnVehicleInput> _returnVehicleUseCase;
         private readonly ReturnVehiclePresenter _returnVehiclePresenter;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VehiclesController"/> class.
+        /// </summary>
+        /// <param name="addVehicleUseCase">Add vehicle use case.</param>
+        /// <param name="addVehiclePresenter">Add vehicle presenter.</param>
+        /// <param name="getAvailableVehiclesUseCase">Get available vehicles use case.</param>
+        /// <param name="getAvailableVehiclesPresenter">Get available vehicles presenter.</param>
+        /// <param name="rentVehicleUseCase">Rent vehicle use case.</param>
+        /// <param name="rentVehiclePresenter">Rent vehicle presenter.</param>
+        /// <param name="returnVehicleUseCase">Return vehicle use case.</param>
+        /// <param name="returnVehiclePresenter">Return vehicle presenter.</param>
         public VehiclesController(
             IUseCase<AddVehicleInput> addVehicleUseCase,
             AddVehiclePresenter addVehiclePresenter,
@@ -54,6 +65,9 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
             _returnVehiclePresenter = returnVehiclePresenter;
         }
 
+        /// <summary>Adds a new vehicle to the fleet.</summary>
+        /// <param name="request">Vehicle data.</param>
+        /// <returns>The created vehicle.</returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -64,6 +78,8 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
             return _addVehiclePresenter.ActionResult;
         }
 
+        /// <summary>Gets all available vehicles.</summary>
+        /// <returns>List of available vehicles.</returns>
         [HttpGet("available")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAvailableVehicles()
@@ -72,21 +88,29 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
             return _getAvailableVehiclesPresenter.ActionResult;
         }
 
-        [HttpPost("{vehicleId:guid}/rent")]
+        /// <summary>Rents a vehicle to a customer.</summary>
+        /// <param name="vehicleId">The vehicle identifier.</param>
+        /// <param name="request">Rental request data.</param>
+        /// <returns>The rental details.</returns>
+        [HttpPost("{vehicleId:long}/rent")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RentVehicle(Guid vehicleId, [FromBody] RentVehicleRequest request)
+        public async Task<IActionResult> RentVehicle(long vehicleId, [FromBody] RentVehicleRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
-            await _rentVehicleUseCase.Execute(new RentVehicleInput(vehicleId, request.CustomerId));
+            await _rentVehicleUseCase.Execute(new RentVehicleInput(vehicleId, request.CustomerId, request.StartDate, request.PlannedEndDate));
             return _rentVehiclePresenter.ActionResult;
         }
 
-        [HttpPost("{vehicleId:guid}/return")]
+        /// <summary>Returns a rented vehicle.</summary>
+        /// <param name="vehicleId">The vehicle identifier.</param>
+        /// <returns>The return confirmation.</returns>
+        [HttpPost("{vehicleId:long}/return")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ReturnVehicle(Guid vehicleId)
+        public async Task<IActionResult> ReturnVehicle(long vehicleId)
         {
             await _returnVehicleUseCase.Execute(new ReturnVehicleInput(vehicleId));
             return _returnVehiclePresenter.ActionResult;

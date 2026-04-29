@@ -9,17 +9,17 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
         /// Initializes a new instance of the <see cref="ReturnVehicleOutput"/> class.
         /// </summary>
         /// <param name="rentalId">Rental identifier.</param>
-        /// <param name="endDate">End date of the rental.</param>
-        public ReturnVehicleOutput(Guid rentalId, DateTime endDate)
+        /// <param name="returnedDate">Actual return date.</param>
+        public ReturnVehicleOutput(Guid rentalId, DateTime returnedDate)
         {
-            RentalId = rentalId;
-            EndDate = endDate;
+            this.RentalId = rentalId;
+            this.ReturnedDate = returnedDate;
         }
 
         /// <summary>Gets the rental identifier.</summary>
         public Guid RentalId { get; }
 
-        /// <summary>Gets the end date of the rental.</summary>
-        public DateTime EndDate { get; }
+        /// <summary>Gets the actual return date.</summary>
+        public DateTime ReturnedDate { get; }
     }
 }

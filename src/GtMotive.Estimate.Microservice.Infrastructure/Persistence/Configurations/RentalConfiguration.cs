@@ -7,6 +7,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence.Configuratio
 {
     internal sealed class RentalConfiguration : IEntityTypeConfiguration<Rental>
     {
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<Rental> builder)
         {
             builder.HasKey(r => r.RentalId);
@@ -21,12 +22,15 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence.Configuratio
             builder.Property(r => r.StartDate)
                 .IsRequired();
 
-            builder.Property(r => r.EndDate);
+            builder.Property(r => r.PlannedEndDate)
+                .IsRequired();
+
+            builder.Property(r => r.ReturnedDate);
 
             // IsActive is a computed property — not persisted.
             builder.Ignore(r => r.IsActive);
 
-            builder.HasIndex(r => new { r.VehicleId, r.EndDate });
+            builder.HasIndex(r => new { r.VehicleId, r.ReturnedDate });
         }
     }
 }
