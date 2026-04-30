@@ -11,16 +11,22 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAvailableVe
     {
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IOutputPortStandard<GetAvailableVehiclesOutput> _outputPort;
+        private readonly IAppLogger<GetAvailableVehiclesUseCase> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetAvailableVehiclesUseCase"/> class.
         /// </summary>
         /// <param name="vehicleRepository">Vehicle repository.</param>
         /// <param name="outputPort">Output port for standard response.</param>
-        public GetAvailableVehiclesUseCase(IVehicleRepository vehicleRepository, IOutputPortStandard<GetAvailableVehiclesOutput> outputPort)
+        /// <param name="logger">Logger.</param>
+        public GetAvailableVehiclesUseCase(
+            IVehicleRepository vehicleRepository,
+            IOutputPortStandard<GetAvailableVehiclesOutput> outputPort,
+            IAppLogger<GetAvailableVehiclesUseCase> logger)
         {
             _vehicleRepository = vehicleRepository;
             _outputPort = outputPort;
+            _logger = logger;
         }
 
         /// <summary>Executes the get available vehicles use case.</summary>
@@ -35,6 +41,11 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAvailableVe
                 .OrderBy(v => v.VehicleId)
                 .Select(v => new VehicleDto(v.VehicleId, v.Brand, v.Model, v.LicensePlate, v.ManufactureYear))
                 .ToList();
+
+            _logger.LogInformation(
+                "Available vehicles listed: {Count} available",
+                dtos.Count);
+
             _outputPort.StandardHandle(new GetAvailableVehiclesOutput(dtos));
         }
     }

@@ -26,6 +26,15 @@ namespace GtMotive.Estimate.Microservice.Domain.Interfaces
         /// <returns>A read-only list of available vehicles.</returns>
         Task<IReadOnlyList<Vehicle>> GetAvailableAsync();
 
+        /// <summary>Gets a vehicle by its license plate.</summary>
+        /// <param name="licensePlate">The license plate.</param>
+        /// <returns>The vehicle if found; otherwise null.</returns>
+        Task<Vehicle?> GetByLicensePlateAsync(string licensePlate);
+
+        /// <summary>Gets all vehicles with their availability status.</summary>
+        /// <returns>A read-only list of all vehicles.</returns>
+        Task<IReadOnlyList<Vehicle>> GetAllAsync();
+
         /// <summary>Updates an existing vehicle in the repository.</summary>
         /// <param name="vehicle">The vehicle to update.</param>
         /// <returns>A task representing the asynchronous operation.</returns>

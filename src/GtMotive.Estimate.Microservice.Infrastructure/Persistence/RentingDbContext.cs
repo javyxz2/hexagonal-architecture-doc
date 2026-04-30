@@ -15,6 +15,9 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence
         /// <summary>Gets the vehicles table.</summary>
         public DbSet<Vehicle> Vehicles => Set<Vehicle>();
 
+        /// <summary>Gets the customers table.</summary>
+        public DbSet<Customer> Customers => Set<Customer>();
+
         /// <summary>Gets the rentals table.</summary>
         public DbSet<Rental> Rentals => Set<Rental>();
 
@@ -24,6 +27,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence
             ArgumentNullException.ThrowIfNull(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new VehicleConfiguration());
+            modelBuilder.ApplyConfiguration(new CustomerConfiguration());
             modelBuilder.ApplyConfiguration(new RentalConfiguration());
         }
     }

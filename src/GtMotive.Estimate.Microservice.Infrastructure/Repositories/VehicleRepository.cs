@@ -40,6 +40,21 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
+        public async Task<Vehicle?> GetByLicensePlateAsync(string licensePlate)
+        {
+            return await context.Vehicles
+                .FirstOrDefaultAsync(v => v.LicensePlate == licensePlate);
+        }
+
+        /// <inheritdoc />
+        public async Task<IReadOnlyList<Vehicle>> GetAllAsync()
+        {
+            return await context.Vehicles
+                .OrderBy(v => v.VehicleId)
+                .ToListAsync();
+        }
+
+        /// <inheritdoc />
         public async Task UpdateAsync(Vehicle vehicle)
         {
             ArgumentNullException.ThrowIfNull(vehicle);

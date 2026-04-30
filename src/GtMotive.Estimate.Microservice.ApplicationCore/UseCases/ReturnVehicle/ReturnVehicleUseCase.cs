@@ -48,21 +48,21 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
             ArgumentNullException.ThrowIfNull(input);
 
             using var activity = ActivitySource.StartActivity("vehicle.return");
-            activity?.SetTag("vehicle.id", input.VehicleId);
+            activity?.SetTag("vehicle.license_plate", input.LicensePlate);
 
             try
             {
-                var rental = await _rentalRepository.GetActiveByVehicleIdAsync(input.VehicleId);
-                if (rental == null)
+                var vehicle = await _vehicleRepository.GetByLicensePlateAsync(input.LicensePlate);
+                if (vehicle == null)
                 {
-                    _outputPort.NotFoundHandle($"No active rental found for vehicle {input.VehicleId}.");
+                    _outputPort.NotFoundHandle($"Vehicle with license plate '{input.LicensePlate}' was not found.");
                     return;
                 }
 
-                var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId);
-                if (vehicle == null)
+                var rental = await _rentalRepository.GetActiveByVehicleIdAsync(vehicle.VehicleId);
+                if (rental == null)
                 {
-                    _outputPort.NotFoundHandle($"Vehicle {input.VehicleId} was not found.");
+                    _outputPort.NotFoundHandle($"No active rental found for vehicle '{input.LicensePlate}'.");
                     return;
                 }
 
@@ -89,7 +89,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
                     properties: new Dictionary<string, string>
                     {
                         ["VehicleId"] = rental.VehicleId.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                        ["CustomerId"] = rental.CustomerId,
+                        ["CustomerId"] = rental.CustomerId.ToString(System.Globalization.CultureInfo.InvariantCulture),
                         ["RentalId"] = rental.RentalId.ToString(),
                         ["ReturnedDate"] = rental.ReturnedDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
                     },

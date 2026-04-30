@@ -3,11 +3,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using GtMotive.Estimate.Microservice.Api.UseCases.AddVehicle;
+using GtMotive.Estimate.Microservice.Api.UseCases.GetAllVehicles;
 using GtMotive.Estimate.Microservice.Api.UseCases.GetAvailableVehicles;
 using GtMotive.Estimate.Microservice.Api.UseCases.RentVehicle;
 using GtMotive.Estimate.Microservice.Api.UseCases.ReturnVehicle;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.AddVehicle;
+using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAllVehicles;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAvailableVehicles;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle;
@@ -25,6 +27,9 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         private readonly IUseCase<AddVehicleInput> _addVehicleUseCase;
         private readonly AddVehiclePresenter _addVehiclePresenter;
 
+        private readonly IUseCase<GetAllVehiclesInput> _getAllVehiclesUseCase;
+        private readonly GetAllVehiclesPresenter _getAllVehiclesPresenter;
+
         private readonly IUseCase<GetAvailableVehiclesInput> _getAvailableVehiclesUseCase;
         private readonly GetAvailableVehiclesPresenter _getAvailableVehiclesPresenter;
 
@@ -39,6 +44,8 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         /// </summary>
         /// <param name="addVehicleUseCase">Add vehicle use case.</param>
         /// <param name="addVehiclePresenter">Add vehicle presenter.</param>
+        /// <param name="getAllVehiclesUseCase">Get all vehicles use case.</param>
+        /// <param name="getAllVehiclesPresenter">Get all vehicles presenter.</param>
         /// <param name="getAvailableVehiclesUseCase">Get available vehicles use case.</param>
         /// <param name="getAvailableVehiclesPresenter">Get available vehicles presenter.</param>
         /// <param name="rentVehicleUseCase">Rent vehicle use case.</param>
@@ -48,6 +55,8 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         public VehiclesController(
             IUseCase<AddVehicleInput> addVehicleUseCase,
             AddVehiclePresenter addVehiclePresenter,
+            IUseCase<GetAllVehiclesInput> getAllVehiclesUseCase,
+            GetAllVehiclesPresenter getAllVehiclesPresenter,
             IUseCase<GetAvailableVehiclesInput> getAvailableVehiclesUseCase,
             GetAvailableVehiclesPresenter getAvailableVehiclesPresenter,
             IUseCase<RentVehicleInput> rentVehicleUseCase,
@@ -57,6 +66,8 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
         {
             _addVehicleUseCase = addVehicleUseCase;
             _addVehiclePresenter = addVehiclePresenter;
+            _getAllVehiclesUseCase = getAllVehiclesUseCase;
+            _getAllVehiclesPresenter = getAllVehiclesPresenter;
             _getAvailableVehiclesUseCase = getAvailableVehiclesUseCase;
             _getAvailableVehiclesPresenter = getAvailableVehiclesPresenter;
             _rentVehicleUseCase = rentVehicleUseCase;
@@ -78,6 +89,16 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
             return _addVehiclePresenter.ActionResult;
         }
 
+        /// <summary>Gets all vehicles with their availability status.</summary>
+        /// <returns>List of all vehicles.</returns>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllVehicles()
+        {
+            await _getAllVehiclesUseCase.Execute(new GetAllVehiclesInput());
+            return _getAllVehiclesPresenter.ActionResult;
+        }
+
         /// <summary>Gets all available vehicles.</summary>
         /// <returns>List of available vehicles.</returns>
         [HttpGet("available")]
@@ -88,31 +109,36 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
             return _getAvailableVehiclesPresenter.ActionResult;
         }
 
-        /// <summary>Rents a vehicle to a customer.</summary>
-        /// <param name="vehicleId">The vehicle identifier.</param>
+        /// <summary>Rents a vehicle to a customer by license plate.</summary>
+        /// <param name="licensePlate">The license plate of the vehicle to rent.</param>
         /// <param name="request">Rental request data.</param>
         /// <returns>The rental details.</returns>
-        [HttpPost("{vehicleId:long}/rent")]
+        [HttpPost("{licensePlate}/rent")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RentVehicle(long vehicleId, [FromBody] RentVehicleRequest request)
+        public async Task<IActionResult> RentVehicle(string licensePlate, [FromBody] RentVehicleRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
-            await _rentVehicleUseCase.Execute(new RentVehicleInput(vehicleId, request.CustomerId, request.StartDate, request.PlannedEndDate));
+            await _rentVehicleUseCase.Execute(new RentVehicleInput(
+                licensePlate,
+                request.CustomerName,
+                request.CustomerDni,
+                request.StartDate,
+                request.PlannedEndDate));
             return _rentVehiclePresenter.ActionResult;
         }
 
-        /// <summary>Returns a rented vehicle.</summary>
-        /// <param name="vehicleId">The vehicle identifier.</param>
+        /// <summary>Returns a rented vehicle by license plate.</summary>
+        /// <param name="licensePlate">The license plate of the vehicle to return.</param>
         /// <returns>The return confirmation.</returns>
-        [HttpPost("{vehicleId:long}/return")]
+        [HttpPost("{licensePlate}/return")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ReturnVehicle(long vehicleId)
+        public async Task<IActionResult> ReturnVehicle(string licensePlate)
         {
-            await _returnVehicleUseCase.Execute(new ReturnVehicleInput(vehicleId));
+            await _returnVehicleUseCase.Execute(new ReturnVehicleInput(licensePlate));
             return _returnVehiclePresenter.ActionResult;
         }
     }

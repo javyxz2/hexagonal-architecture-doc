@@ -6,13 +6,13 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
         /// <summary>
         /// Initializes a new instance of the <see cref="ReturnVehicleInput"/> class.
         /// </summary>
-        /// <param name="vehicleId">The vehicle to return.</param>
-        public ReturnVehicleInput(long vehicleId)
+        /// <param name="licensePlate">The license plate of the vehicle to return.</param>
+        public ReturnVehicleInput(string licensePlate)
         {
-            this.VehicleId = vehicleId;
+            this.LicensePlate = licensePlate;
         }
 
-        /// <summary>Gets the vehicle identifier.</summary>
-        public long VehicleId { get; }
+        /// <summary>Gets the license plate of the vehicle.</summary>
+        public string LicensePlate { get; }
     }
 }

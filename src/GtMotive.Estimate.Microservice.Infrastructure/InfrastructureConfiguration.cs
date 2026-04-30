@@ -41,6 +41,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure
 
             services.AddScoped<IVehicleRepository, VehicleRepository>();
             services.AddScoped<IRentalRepository, RentalRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
 
             return new InfrastructureBuilder(services);
         }

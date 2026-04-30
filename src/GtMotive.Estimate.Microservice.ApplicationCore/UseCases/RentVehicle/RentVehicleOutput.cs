@@ -10,10 +10,10 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         /// </summary>
         /// <param name="rentalId">Rental identifier.</param>
         /// <param name="vehicleId">Vehicle identifier.</param>
-        /// <param name="customerId">Customer identifier.</param>
+        /// <param name="customerId">Auto-incremented customer identifier.</param>
         /// <param name="startDate">Planned start date of the rental.</param>
         /// <param name="plannedEndDate">Planned end date of the rental.</param>
-        public RentVehicleOutput(Guid rentalId, long vehicleId, string customerId, DateTime startDate, DateTime plannedEndDate)
+        public RentVehicleOutput(Guid rentalId, long vehicleId, long customerId, DateTime startDate, DateTime plannedEndDate)
         {
             this.RentalId = rentalId;
             this.VehicleId = vehicleId;
@@ -28,8 +28,8 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         /// <summary>Gets the vehicle identifier.</summary>
         public long VehicleId { get; }
 
-        /// <summary>Gets the customer identifier.</summary>
-        public string CustomerId { get; }
+        /// <summary>Gets the auto-incremented customer identifier.</summary>
+        public long CustomerId { get; }
 
         /// <summary>Gets the planned start date of the rental.</summary>
         public DateTime StartDate { get; }

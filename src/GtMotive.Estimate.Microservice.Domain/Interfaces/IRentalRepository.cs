@@ -24,7 +24,7 @@ namespace GtMotive.Estimate.Microservice.Domain.Interfaces
         /// <summary>Determines whether a customer has an active rental.</summary>
         /// <param name="customerId">The customer identifier.</param>
         /// <returns>True if the customer has an active rental; otherwise false.</returns>
-        Task<bool> HasActiveRentalAsync(string customerId);
+        Task<bool> HasActiveRentalAsync(long customerId);
 
         /// <summary>Updates an existing rental in the repository.</summary>
         /// <param name="rental">The rental to update.</param>

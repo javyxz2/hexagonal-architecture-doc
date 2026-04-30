@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
 
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IRentalRepository _rentalRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly IRentVehicleOutputPort _outputPort;
         private readonly ITelemetry _telemetry;
         private readonly IAppLogger<RentVehicleUseCase> _logger;
@@ -25,18 +27,21 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         /// </summary>
         /// <param name="vehicleRepository">Vehicle repository.</param>
         /// <param name="rentalRepository">Rental repository.</param>
+        /// <param name="customerRepository">Customer repository.</param>
         /// <param name="outputPort">Combined output port.</param>
         /// <param name="telemetry">Telemetry service.</param>
         /// <param name="logger">Logger.</param>
         public RentVehicleUseCase(
             IVehicleRepository vehicleRepository,
             IRentalRepository rentalRepository,
+            ICustomerRepository customerRepository,
             IRentVehicleOutputPort outputPort,
             ITelemetry telemetry,
             IAppLogger<RentVehicleUseCase> logger)
         {
             _vehicleRepository = vehicleRepository;
             _rentalRepository = rentalRepository;
+            _customerRepository = customerRepository;
             _outputPort = outputPort;
             _telemetry = telemetry;
             _logger = logger;
@@ -50,8 +55,8 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
             ArgumentNullException.ThrowIfNull(input);
 
             using var activity = ActivitySource.StartActivity("vehicle.rent");
-            activity?.SetTag("vehicle.id", input.VehicleId);
-            activity?.SetTag("rental.customer_id", input.CustomerId);
+            activity?.SetTag("vehicle.license_plate", input.LicensePlate);
+            activity?.SetTag("rental.customer_name", input.CustomerName);
             activity?.SetTag("rental.start_date", input.StartDate);
             activity?.SetTag("rental.planned_end_date", input.PlannedEndDate);
 
@@ -62,16 +67,18 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                     throw new DomainException("Planned end date must be after the start date.");
                 }
 
-                bool hasActiveRental = await _rentalRepository.HasActiveRentalAsync(input.CustomerId);
+                var customer = await FindOrCreateCustomerAsync(input.CustomerName, input.CustomerDni);
+
+                bool hasActiveRental = await _rentalRepository.HasActiveRentalAsync(customer.CustomerId);
                 if (hasActiveRental)
                 {
                     throw new DomainException("Customer already has an active rental.");
                 }
 
-                var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId);
+                var vehicle = await _vehicleRepository.GetByLicensePlateAsync(input.LicensePlate);
                 if (vehicle == null)
                 {
-                    _outputPort.NotFoundHandle($"Vehicle {input.VehicleId} was not found.");
+                    _outputPort.NotFoundHandle($"Vehicle with license plate '{input.LicensePlate}' was not found.");
                     return;
                 }
 
@@ -80,19 +87,21 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                     throw new DomainException("Vehicle is not available for renting.");
                 }
 
-                var rental = new Rental(vehicle.VehicleId, input.CustomerId, input.StartDate, input.PlannedEndDate);
+                var rental = new Rental(vehicle.VehicleId, customer.CustomerId, input.StartDate, input.PlannedEndDate);
                 vehicle.MarkAsRented();
 
                 await _rentalRepository.AddAsync(rental);
                 await _vehicleRepository.UpdateAsync(vehicle);
 
                 activity?.SetTag("rental.id", rental.RentalId);
+                activity?.SetTag("rental.customer_id", customer.CustomerId);
                 activity?.SetStatus(ActivityStatusCode.Ok);
 
                 _logger.LogInformation(
-                    "Vehicle {VehicleId} rented by customer {CustomerId} from {StartDate:yyyy-MM-dd} to {PlannedEndDate:yyyy-MM-dd} (rentalId: {RentalId})",
-                    rental.VehicleId,
-                    rental.CustomerId,
+                    "Vehicle {LicensePlate} rented by customer {CustomerId} ({CustomerName}) from {StartDate:yyyy-MM-dd} to {PlannedEndDate:yyyy-MM-dd} (rentalId: {RentalId})",
+                    input.LicensePlate,
+                    customer.CustomerId,
+                    customer.CustomerName,
                     rental.StartDate,
                     rental.PlannedEndDate,
                     rental.RentalId);
@@ -102,7 +111,9 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                     properties: new Dictionary<string, string>
                     {
                         ["VehicleId"] = rental.VehicleId.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                        ["CustomerId"] = rental.CustomerId,
+                        ["LicensePlate"] = input.LicensePlate,
+                        ["CustomerId"] = customer.CustomerId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        ["CustomerName"] = customer.CustomerName,
                         ["StartDate"] = rental.StartDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
                         ["PlannedEndDate"] = rental.PlannedEndDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
                         ["RentalId"] = rental.RentalId.ToString(),
@@ -112,7 +123,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 _outputPort.StandardHandle(new RentVehicleOutput(
                     rental.RentalId,
                     rental.VehicleId,
-                    rental.CustomerId,
+                    customer.CustomerId,
                     rental.StartDate,
                     rental.PlannedEndDate));
             }
@@ -121,6 +132,32 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 throw;
             }
+        }
+
+        private async Task<Customer> FindOrCreateCustomerAsync(string customerName, string? customerDni)
+        {
+            Customer? customer = null;
+
+            if (!string.IsNullOrWhiteSpace(customerDni))
+            {
+                customer = await _customerRepository.FindByDniAsync(customerDni);
+            }
+
+            customer ??= await _customerRepository.FindByNameAsync(customerName);
+
+            if (customer == null)
+            {
+                customer = new Customer(customerName, customerDni);
+                await _customerRepository.AddAsync(customer);
+
+                _logger.LogInformation(
+                    "New customer created: {CustomerName} (DNI: {CustomerDni}, Id: {CustomerId})",
+                    customer.CustomerName,
+                    customer.CustomerDni ?? "N/A",
+                    customer.CustomerId);
+            }
+
+            return customer;
         }
     }
 }

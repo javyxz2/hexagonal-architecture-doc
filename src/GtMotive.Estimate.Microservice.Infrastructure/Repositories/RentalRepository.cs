@@ -33,7 +33,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<bool> HasActiveRentalAsync(string customerId)
+        public async Task<bool> HasActiveRentalAsync(long customerId)
         {
             return await context.Rentals
                 .AnyAsync(r => r.CustomerId == customerId && r.ReturnedDate == null);

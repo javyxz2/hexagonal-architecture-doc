@@ -16,8 +16,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence.Configuratio
                 .IsRequired();
 
             builder.Property(r => r.CustomerId)
-                .IsRequired()
-                .HasMaxLength(100);
+                .IsRequired();
 
             builder.Property(r => r.StartDate)
                 .IsRequired();

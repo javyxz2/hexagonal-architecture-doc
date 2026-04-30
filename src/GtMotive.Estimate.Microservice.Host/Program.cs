@@ -137,7 +137,11 @@ if (builder.Environment.IsDevelopment())
     if (!string.IsNullOrEmpty(lokiUrl))
     {
         List<LokiLabel> lokiLabels = [new() { Key = "app", Value = "renting-api" }];
-        devLogConfig = devLogConfig.WriteTo.GrafanaLoki(lokiUrl, labels: lokiLabels);
+        devLogConfig = devLogConfig.WriteTo.Logger(lc => lc
+            .Filter.ByIncludingOnly(evt =>
+                evt.Properties.TryGetValue("SourceContext", out var src) &&
+                src.ToString().Contains("UseCases", StringComparison.Ordinal))
+            .WriteTo.GrafanaLoki(lokiUrl, labels: lokiLabels));
     }
 
     Log.Logger = devLogConfig.CreateLogger();

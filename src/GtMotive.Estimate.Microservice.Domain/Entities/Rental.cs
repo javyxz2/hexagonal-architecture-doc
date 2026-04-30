@@ -11,10 +11,10 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// Initializes a new instance of the <see cref="Rental"/> class.
         /// </summary>
         /// <param name="vehicleId">The vehicle being rented.</param>
-        /// <param name="customerId">The customer renting the vehicle.</param>
+        /// <param name="customerId">The auto-incremented customer identifier.</param>
         /// <param name="startDate">The planned start date of the rental.</param>
         /// <param name="plannedEndDate">The planned end date of the rental.</param>
-        public Rental(long vehicleId, string customerId, DateTime startDate, DateTime plannedEndDate)
+        public Rental(long vehicleId, long customerId, DateTime startDate, DateTime plannedEndDate)
         {
             this.RentalId = Guid.NewGuid();
             this.VehicleId = vehicleId;
@@ -37,8 +37,8 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// <summary>Gets the identifier of the rented vehicle.</summary>
         public long VehicleId { get; private set; }
 
-        /// <summary>Gets the identifier of the customer.</summary>
-        public string CustomerId { get; private set; }
+        /// <summary>Gets the auto-incremented identifier of the customer.</summary>
+        public long CustomerId { get; private set; }
 
         /// <summary>Gets the planned start date of the rental.</summary>
         public DateTime StartDate { get; private set; }

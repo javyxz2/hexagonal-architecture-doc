@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
@@ -8,23 +9,28 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         /// <summary>
         /// Initializes a new instance of the <see cref="RentVehicleInput"/> class.
         /// </summary>
-        /// <param name="vehicleId">The vehicle to rent.</param>
-        /// <param name="customerId">The customer renting the vehicle.</param>
+        /// <param name="licensePlate">The license plate of the vehicle to rent.</param>
+        /// <param name="customerName">The full name of the customer.</param>
+        /// <param name="customerDni">The DNI of the customer (optional).</param>
         /// <param name="startDate">The planned start date of the rental.</param>
         /// <param name="plannedEndDate">The planned end date of the rental.</param>
-        public RentVehicleInput(long vehicleId, string customerId, DateTime startDate, DateTime plannedEndDate)
+        public RentVehicleInput(string licensePlate, string customerName, string? customerDni, DateTime startDate, DateTime plannedEndDate)
         {
-            this.VehicleId = vehicleId;
-            this.CustomerId = customerId;
+            this.LicensePlate = licensePlate;
+            this.CustomerName = customerName;
+            this.CustomerDni = string.IsNullOrWhiteSpace(customerDni) ? null : customerDni;
             this.StartDate = startDate;
             this.PlannedEndDate = plannedEndDate;
         }
 
-        /// <summary>Gets the vehicle identifier.</summary>
-        public long VehicleId { get; }
+        /// <summary>Gets the license plate of the vehicle to rent.</summary>
+        public string LicensePlate { get; }
 
-        /// <summary>Gets the customer identifier.</summary>
-        public string CustomerId { get; }
+        /// <summary>Gets the full name of the customer.</summary>
+        public string CustomerName { get; }
+
+        /// <summary>Gets the DNI of the customer (optional).</summary>
+        public string? CustomerDni { get; }
 
         /// <summary>Gets the planned start date of the rental.</summary>
         public DateTime StartDate { get; }
