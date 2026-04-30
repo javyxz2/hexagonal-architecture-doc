@@ -1,3 +1,5 @@
+#nullable enable
+using System;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -11,6 +13,18 @@ namespace GtMotive.Estimate.Microservice.Api.Authentication
     /// <summary>Validates requests using the <c>X-Api-Key</c> header.</summary>
     public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
     {
+        private static readonly Action<ILogger, string, object?, Exception?> LogMissingHeader =
+            LoggerMessage.Define<string, object?>(
+                LogLevel.Warning,
+                new EventId(1, "MissingApiKeyHeader"),
+                "Authentication failed: missing {Header} header. RemoteIp={RemoteIp}");
+
+        private static readonly Action<ILogger, object?, Exception?> LogInvalidKey =
+            LoggerMessage.Define<object?>(
+                LogLevel.Warning,
+                new EventId(2, "InvalidApiKey"),
+                "Authentication failed: invalid API key. RemoteIp={RemoteIp}");
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiKeyAuthenticationHandler"/> class.
         /// </summary>
@@ -30,6 +44,7 @@ namespace GtMotive.Estimate.Microservice.Api.Authentication
         {
             if (!Request.Headers.TryGetValue(ApiKeyAuthenticationDefaults.HeaderName, out var headerValues))
             {
+                LogMissingHeader(Logger, ApiKeyAuthenticationDefaults.HeaderName, Request.HttpContext.Connection.RemoteIpAddress, null);
                 return Task.FromResult(AuthenticateResult.Fail($"Missing {ApiKeyAuthenticationDefaults.HeaderName} header."));
             }
 
@@ -37,6 +52,7 @@ namespace GtMotive.Estimate.Microservice.Api.Authentication
 
             if (string.IsNullOrEmpty(Options.ApiKey) || providedKey != Options.ApiKey)
             {
+                LogInvalidKey(Logger, Request.HttpContext.Connection.RemoteIpAddress, null);
                 return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
             }
 
