@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -28,7 +29,8 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs.Vehicles
         {
             // Arrange — a request with a year too old reaches the controller but the domain
             // rejects it; BusinessExceptionFilter converts the DomainException to 400.
-            using var client = Fixture.Server.CreateClient();
+            using var client = Fixture.Server.CreateClient()
+                .WithDefaultIdentity([new Claim(ClaimTypes.Name, "TestUser")]);
             var body = JsonSerializer.Serialize(new
             {
                 Brand = "Toyota",
@@ -50,7 +52,8 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs.Vehicles
         public async Task PostVehicle_WhenBodyIsNotJson_ReturnsBadRequest()
         {
             // Arrange — malformed body triggers model-binding failure at the host level.
-            using var client = Fixture.Server.CreateClient();
+            using var client = Fixture.Server.CreateClient()
+                .WithDefaultIdentity([new Claim(ClaimTypes.Name, "TestUser")]);
             using var content = new StringContent("not-a-json", Encoding.UTF8, "application/json");
 
             // Act

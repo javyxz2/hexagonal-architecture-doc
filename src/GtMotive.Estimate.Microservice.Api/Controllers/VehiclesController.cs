@@ -15,12 +15,14 @@ using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAvailableVehicl
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GtMotive.Estimate.Microservice.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/vehicles")]
     [SuppressMessage("Design", "S107:Methods should not have too many parameters", Justification = "Controller aggregates all vehicle use cases by design.")]
     public class VehiclesController : ControllerBase
