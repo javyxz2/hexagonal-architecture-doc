@@ -92,8 +92,8 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
                 activity?.SetStatus(ActivityStatusCode.Ok);
 
                 _logger.LogInformation(
-                    "Vehicle {VehicleId} returned by customer {CustomerId} on {ReturnedDate:yyyy-MM-dd} (rentalId: {RentalId})",
-                    rental.VehicleId,
+                    "Vehicle {LicensePlate} returned by customer {CustomerId} on {ReturnedDate:yyyy-MM-dd} (rentalId: {RentalId})",
+                    input.LicensePlate,
                     rental.CustomerId,
                     rental.ReturnedDate,
                     rental.RentalId);
