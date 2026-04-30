@@ -20,11 +20,11 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence.Configuratio
                 .HasMaxLength(200);
 
             builder.Property(c => c.CustomerDni)
+                .IsRequired()
                 .HasMaxLength(20);
 
             builder.HasIndex(c => c.CustomerDni)
-                .IsUnique()
-                .HasFilter("\"CustomerDni\" IS NOT NULL");
+                .IsUnique();
         }
     }
 }

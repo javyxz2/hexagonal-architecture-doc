@@ -68,7 +68,6 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 }
 
                 var customer = await FindOrCreateCustomerAsync(input.CustomerName, input.CustomerDni);
-
                 bool hasActiveRental = await _rentalRepository.HasActiveRentalAsync(customer.CustomerId);
                 if (hasActiveRental)
                 {
@@ -134,28 +133,15 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
             }
         }
 
-        private async Task<Customer> FindOrCreateCustomerAsync(string customerName, string? customerDni)
+        private async Task<Customer> FindOrCreateCustomerAsync(string customerName, string customerDni)
         {
-            Customer? customer = null;
+            var customer = await _customerRepository.FindOrCreateAsync(customerName, customerDni);
 
-            if (!string.IsNullOrWhiteSpace(customerDni))
-            {
-                customer = await _customerRepository.FindByDniAsync(customerDni);
-            }
-
-            customer ??= await _customerRepository.FindByNameAsync(customerName);
-
-            if (customer == null)
-            {
-                customer = new Customer(customerName, customerDni);
-                await _customerRepository.AddAsync(customer);
-
-                _logger.LogInformation(
-                    "New customer created: {CustomerName} (DNI: {CustomerDni}, Id: {CustomerId})",
-                    customer.CustomerName,
-                    customer.CustomerDni ?? "N/A",
-                    customer.CustomerId);
-            }
+            _logger.LogInformation(
+                "Customer resolved: {CustomerName} (DNI: {CustomerDni}, Id: {CustomerId})",
+                customer.CustomerName,
+                customer.CustomerDni,
+                customer.CustomerId);
 
             return customer;
         }

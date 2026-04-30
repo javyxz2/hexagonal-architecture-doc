@@ -11,8 +11,9 @@ namespace GtMotive.Estimate.Microservice.Api.UseCases.RentVehicle
         [JsonRequired]
         public string CustomerName { get; set; } = string.Empty;
 
-        /// <summary>Gets or sets the DNI of the customer (optional).</summary>
-        public string? CustomerDni { get; set; }
+        /// <summary>Gets or sets the DNI of the customer.</summary>
+        [JsonRequired]
+        public string CustomerDni { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the planned start date of the rental.</summary>
         [JsonRequired]

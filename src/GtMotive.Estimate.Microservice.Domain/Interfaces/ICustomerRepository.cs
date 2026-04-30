@@ -16,14 +16,14 @@ namespace GtMotive.Estimate.Microservice.Domain.Interfaces
         /// <returns>The customer if found; otherwise null.</returns>
         Task<Customer?> FindByDniAsync(string dni);
 
-        /// <summary>Finds a customer by name.</summary>
-        /// <param name="name">The name to search for.</param>
-        /// <returns>The customer if found; otherwise null.</returns>
-        Task<Customer?> FindByNameAsync(string name);
-
-        /// <summary>Adds a new customer to the repository.</summary>
-        /// <param name="customer">The customer to add.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task AddAsync(Customer customer);
+        /// <summary>
+        /// Returns the existing customer with the given DNI, or creates a new one atomically.
+        /// Safe against concurrent inserts: if two requests race, one will find the record
+        /// inserted by the other instead of failing.
+        /// </summary>
+        /// <param name="customerName">Full name of the customer.</param>
+        /// <param name="customerDni">Unique DNI of the customer.</param>
+        /// <returns>The existing or newly created customer.</returns>
+        Task<Customer> FindOrCreateAsync(string customerName, string customerDni);
     }
 }

@@ -1,5 +1,4 @@
 #nullable enable
-using System;
 using System.Threading.Tasks;
 
 using GtMotive.Estimate.Microservice.Domain.Entities;
@@ -23,18 +22,30 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<Customer?> FindByNameAsync(string name)
+        public async Task<Customer> FindOrCreateAsync(string customerName, string customerDni)
         {
-            return await context.Customers
-                .FirstOrDefaultAsync(c => c.CustomerName == name);
-        }
+            var existing = await FindByDniAsync(customerDni);
+            if (existing != null)
+            {
+                return existing;
+            }
 
-        /// <inheritdoc />
-        public async Task AddAsync(Customer customer)
-        {
-            ArgumentNullException.ThrowIfNull(customer);
-            await context.Customers.AddAsync(customer);
-            await context.SaveChangesAsync();
+            var customer = new Customer(customerName, customerDni);
+
+            try
+            {
+                await context.Customers.AddAsync(customer);
+                await context.SaveChangesAsync();
+                return customer;
+            }
+            catch (DbUpdateException)
+            {
+                // Concurrent request inserted the same DNI first — clear the failed
+                // tracked entity and fetch the one already in the database.
+                context.ChangeTracker.Clear();
+                return await context.Customers
+                    .FirstAsync(c => c.CustomerDni == customerDni);
+            }
         }
     }
 }
