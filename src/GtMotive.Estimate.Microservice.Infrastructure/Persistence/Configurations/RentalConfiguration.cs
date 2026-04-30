@@ -29,7 +29,13 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence.Configuratio
             // IsActive is a computed property — not persisted.
             builder.Ignore(r => r.IsActive);
 
+            builder.HasOne<Customer>()
+                .WithMany()
+                .HasForeignKey(r => r.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasIndex(r => new { r.VehicleId, r.ReturnedDate });
+            builder.HasIndex(r => r.CustomerId);
         }
     }
 }
