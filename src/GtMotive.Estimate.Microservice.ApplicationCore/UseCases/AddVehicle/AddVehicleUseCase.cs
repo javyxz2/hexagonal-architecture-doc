@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using GtMotive.Estimate.Microservice.Domain;
@@ -14,16 +15,26 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.AddVehicle
 
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IOutputPortStandard<AddVehicleOutput> _outputPort;
+        private readonly ITelemetry _telemetry;
+        private readonly IAppLogger<AddVehicleUseCase> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddVehicleUseCase"/> class.
         /// </summary>
         /// <param name="vehicleRepository">Vehicle repository.</param>
         /// <param name="outputPort">Output port for standard response.</param>
-        public AddVehicleUseCase(IVehicleRepository vehicleRepository, IOutputPortStandard<AddVehicleOutput> outputPort)
+        /// <param name="telemetry">Telemetry service.</param>
+        /// <param name="logger">Logger.</param>
+        public AddVehicleUseCase(
+            IVehicleRepository vehicleRepository,
+            IOutputPortStandard<AddVehicleOutput> outputPort,
+            ITelemetry telemetry,
+            IAppLogger<AddVehicleUseCase> logger)
         {
             _vehicleRepository = vehicleRepository;
             _outputPort = outputPort;
+            _telemetry = telemetry;
+            _logger = logger;
         }
 
         /// <summary>Executes the add vehicle use case.</summary>
@@ -41,6 +52,25 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.AddVehicle
 
             var vehicle = new Vehicle(input.Brand, input.Model, input.LicensePlate, input.ManufactureYear);
             await _vehicleRepository.AddAsync(vehicle);
+
+            _logger.LogInformation(
+                "Vehicle added: {Brand} {Model} ({LicensePlate}) year {Year} with id {VehicleId}",
+                vehicle.Brand,
+                vehicle.Model,
+                vehicle.LicensePlate,
+                vehicle.ManufactureYear,
+                vehicle.VehicleId);
+
+            _telemetry.TrackEvent(
+                "VehicleAdded",
+                properties: new Dictionary<string, string>
+                {
+                    ["Brand"] = vehicle.Brand,
+                    ["Model"] = vehicle.Model,
+                    ["LicensePlate"] = vehicle.LicensePlate,
+                    ["ManufactureYear"] = vehicle.ManufactureYear.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                },
+                metrics: new Dictionary<string, double> { ["Count"] = 1 });
 
             _outputPort.StandardHandle(new AddVehicleOutput(
                 vehicle.VehicleId,

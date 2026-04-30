@@ -21,13 +21,21 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore.AddVehicle
     {
         private readonly Mock<IVehicleRepository> _vehicleRepositoryMock;
         private readonly Mock<IOutputPortStandard<AddVehicleOutput>> _outputPortMock;
+        private readonly Mock<ITelemetry> _telemetryMock;
+        private readonly Mock<IAppLogger<AddVehicleUseCase>> _loggerMock;
         private readonly AddVehicleUseCase _sut;
 
         public AddVehicleUseCaseTests()
         {
             _vehicleRepositoryMock = new Mock<IVehicleRepository>();
             _outputPortMock = new Mock<IOutputPortStandard<AddVehicleOutput>>();
-            _sut = new AddVehicleUseCase(_vehicleRepositoryMock.Object, _outputPortMock.Object);
+            _telemetryMock = new Mock<ITelemetry>();
+            _loggerMock = new Mock<IAppLogger<AddVehicleUseCase>>();
+            _sut = new AddVehicleUseCase(
+                _vehicleRepositoryMock.Object,
+                _outputPortMock.Object,
+                _telemetryMock.Object,
+                _loggerMock.Object);
         }
 
         [Fact]
@@ -40,6 +48,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore.AddVehicle
 
             _vehicleRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Vehicle>()), Times.Never);
             _outputPortMock.Verify(o => o.StandardHandle(It.IsAny<AddVehicleOutput>()), Times.Never);
+            _telemetryMock.Verify(t => t.TrackEvent(It.IsAny<string>(), It.IsAny<System.Collections.Generic.IDictionary<string, string>>(), It.IsAny<System.Collections.Generic.IDictionary<string, double>>()), Times.Never);
         }
 
         [Fact]
@@ -66,6 +75,25 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore.AddVehicle
             Assert.Equal("Corolla", capturedOutput.Model);
             Assert.Equal("1234ABC", capturedOutput.LicensePlate);
             Assert.Equal(currentYear, capturedOutput.ManufactureYear);
+        }
+
+        [Fact]
+        public async Task Execute_WhenValidInput_TracksVehicleAddedEvent()
+        {
+            var currentYear = DateTime.UtcNow.Year;
+            var input = new AddVehicleInput("Toyota", "Corolla", "1234ABC", currentYear);
+
+            _vehicleRepositoryMock.Setup(r => r.AddAsync(It.IsAny<Vehicle>())).Returns(Task.CompletedTask);
+
+            await _sut.Execute(input);
+
+            _telemetryMock.Verify(
+                t => t.TrackEvent(
+                    "VehicleAdded",
+                    It.Is<System.Collections.Generic.IDictionary<string, string>>(p =>
+                        p["Brand"] == "Toyota" && p["Model"] == "Corolla" && p["LicensePlate"] == "1234ABC"),
+                    It.IsAny<System.Collections.Generic.IDictionary<string, double>>()),
+                Times.Once);
         }
     }
 }
