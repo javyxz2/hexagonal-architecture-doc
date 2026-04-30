@@ -1,4 +1,6 @@
-﻿namespace GtMotive.Estimate.Microservice.Domain.Entities
+﻿using System;
+
+namespace GtMotive.Estimate.Microservice.Domain.Entities
 {
     /// <summary>
     /// Represents a vehicle available for renting.
@@ -14,6 +16,9 @@
         /// <param name="manufactureYear">Year of manufacture.</param>
         public Vehicle(string brand, string model, string licensePlate, int manufactureYear)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(brand);
+            ArgumentException.ThrowIfNullOrWhiteSpace(model);
+            ArgumentException.ThrowIfNullOrWhiteSpace(licensePlate);
             this.Brand = brand;
             this.Model = model;
             this.LicensePlate = licensePlate;

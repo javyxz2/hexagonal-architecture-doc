@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 
 namespace GtMotive.Estimate.Microservice.Domain.Entities
 {
@@ -14,6 +15,8 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// <param name="customerDni">The DNI of the customer (optional).</param>
         public Customer(string customerName, string customerDni)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(customerName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(customerDni);
             this.CustomerName = customerName;
             this.CustomerDni = customerDni;
         }
