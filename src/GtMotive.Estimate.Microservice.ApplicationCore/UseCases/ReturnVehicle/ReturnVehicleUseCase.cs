@@ -10,8 +10,6 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
     /// <summary>Use case to return a rented vehicle.</summary>
     public sealed class ReturnVehicleUseCase : IUseCase<ReturnVehicleInput>
     {
-        private static readonly ActivitySource ActivitySource = new("GtMotive.Estimate.Renting");
-
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IRentalRepository _rentalRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -51,7 +49,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
         {
             ArgumentNullException.ThrowIfNull(input);
 
-            using var activity = ActivitySource.StartActivity("vehicle.return");
+            using var activity = RentingActivitySource.Instance.StartActivity("vehicle.return");
             activity?.SetTag("vehicle.license_plate", input.LicensePlate);
 
             try

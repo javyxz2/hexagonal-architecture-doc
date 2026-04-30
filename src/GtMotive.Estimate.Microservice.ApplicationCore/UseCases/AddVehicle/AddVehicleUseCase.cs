@@ -14,8 +14,6 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.AddVehicle
     {
         private const int MaxVehicleAgeYears = 5;
 
-        private static readonly ActivitySource ActivitySource = new("GtMotive.Estimate.Renting");
-
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IOutputPortStandard<AddVehicleOutput> _outputPort;
         private readonly ITelemetry _telemetry;
@@ -47,7 +45,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.AddVehicle
         {
             ArgumentNullException.ThrowIfNull(input);
 
-            using var activity = ActivitySource.StartActivity("vehicle.add");
+            using var activity = RentingActivitySource.Instance.StartActivity("vehicle.add");
             activity?.SetTag("vehicle.brand", input.Brand);
             activity?.SetTag("vehicle.model", input.Model);
             activity?.SetTag("vehicle.license_plate", input.LicensePlate);

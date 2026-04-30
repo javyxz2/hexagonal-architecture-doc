@@ -13,8 +13,6 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
     /// <summary>Use case to rent a vehicle to a customer.</summary>
     public sealed class RentVehicleUseCase : IUseCase<RentVehicleInput>
     {
-        private static readonly ActivitySource ActivitySource = new("GtMotive.Estimate.Renting");
-
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IRentalRepository _rentalRepository;
         private readonly ICustomerRepository _customerRepository;
@@ -58,7 +56,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         {
             ArgumentNullException.ThrowIfNull(input);
 
-            using var activity = ActivitySource.StartActivity("vehicle.rent");
+            using var activity = RentingActivitySource.Instance.StartActivity("vehicle.rent");
             activity?.SetTag("vehicle.license_plate", input.LicensePlate);
             activity?.SetTag("rental.customer_name", input.CustomerName);
             activity?.SetTag("rental.start_date", input.StartDate);
