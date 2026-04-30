@@ -71,13 +71,6 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                     throw new DomainException("Planned end date must be after the start date.");
                 }
 
-                var customer = await FindOrCreateCustomerAsync(input.CustomerName, input.CustomerDni);
-                bool hasActiveRental = await _rentalRepository.HasActiveRentalAsync(customer.CustomerId);
-                if (hasActiveRental)
-                {
-                    throw new DomainException("Customer already has an active rental.");
-                }
-
                 var vehicle = await _vehicleRepository.GetByLicensePlateAsync(input.LicensePlate);
                 if (vehicle == null)
                 {
@@ -88,6 +81,13 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 if (!vehicle.IsAvailable)
                 {
                     throw new DomainException("Vehicle is not available for renting.");
+                }
+
+                var customer = await FindOrCreateCustomerAsync(input.CustomerName, input.CustomerDni);
+                bool hasActiveRental = await _rentalRepository.HasActiveRentalAsync(customer.CustomerId);
+                if (hasActiveRental)
+                {
+                    throw new DomainException("Customer already has an active rental.");
                 }
 
                 var rental = new Rental(vehicle.VehicleId, customer.CustomerId, input.StartDate, input.PlannedEndDate);
