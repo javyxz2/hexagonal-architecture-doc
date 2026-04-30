@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
+using GtMotive.Estimate.Microservice.Api.UseCases;
 using GtMotive.Estimate.Microservice.Api.UseCases.AddVehicle;
 using GtMotive.Estimate.Microservice.Api.UseCases.GetAllVehicles;
 using GtMotive.Estimate.Microservice.Api.UseCases.GetAvailableVehicles;
@@ -25,19 +26,19 @@ namespace GtMotive.Estimate.Microservice.Api.Controllers
     public class VehiclesController : ControllerBase
     {
         private readonly IUseCase<AddVehicleInput> _addVehicleUseCase;
-        private readonly AddVehiclePresenter _addVehiclePresenter;
+        private readonly IWebApiPresenter _addVehiclePresenter;
 
         private readonly IUseCase<GetAllVehiclesInput> _getAllVehiclesUseCase;
-        private readonly GetAllVehiclesPresenter _getAllVehiclesPresenter;
+        private readonly IWebApiPresenter _getAllVehiclesPresenter;
 
         private readonly IUseCase<GetAvailableVehiclesInput> _getAvailableVehiclesUseCase;
-        private readonly GetAvailableVehiclesPresenter _getAvailableVehiclesPresenter;
+        private readonly IWebApiPresenter _getAvailableVehiclesPresenter;
 
         private readonly IUseCase<RentVehicleInput> _rentVehicleUseCase;
-        private readonly RentVehiclePresenter _rentVehiclePresenter;
+        private readonly IWebApiPresenter _rentVehiclePresenter;
 
         private readonly IUseCase<ReturnVehicleInput> _returnVehicleUseCase;
-        private readonly ReturnVehiclePresenter _returnVehiclePresenter;
+        private readonly IWebApiPresenter _returnVehiclePresenter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VehiclesController"/> class.

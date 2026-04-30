@@ -133,6 +133,7 @@ dotnet_diagnostic.CA1303.severity = none
 dotnet_diagnostic.CA1724.severity = none
 dotnet_diagnostic.CA1812.severity = none
 dotnet_diagnostic.CA1815.severity = none
+dotnet_diagnostic.CA1859.severity = none
 dotnet_diagnostic.CA2007.severity = none
 #SonarAnalyzer.CSharp
 dotnet_diagnostic.S100.severity = none
