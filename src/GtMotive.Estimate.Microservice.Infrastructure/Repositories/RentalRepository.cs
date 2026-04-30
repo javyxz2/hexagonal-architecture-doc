@@ -12,9 +12,9 @@ using Microsoft.EntityFrameworkCore;
 namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
 {
     /// <summary>
-    /// PostgreSQL-backed implementation of <see cref="IRentalRepository"/>.
+    /// EF Core implementation of <see cref="IRentalRepository"/>.
     /// </summary>
-    public sealed class SqlRentalRepository(RentingDbContext context) : IRentalRepository
+    public sealed class RentalRepository(RentingDbContext context) : IRentalRepository
     {
         /// <inheritdoc />
         public async Task AddAsync(Rental rental)

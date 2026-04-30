@@ -22,7 +22,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure
         public static IInfrastructureBuilder AddBaseInfrastructure(
             this IServiceCollection services,
             bool isDevelopment,
-            string? connectionString = null)
+            string connectionString)
         {
             services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
 
@@ -35,19 +35,11 @@ namespace GtMotive.Estimate.Microservice.Infrastructure
                 services.AddScoped<ITelemetry, NoOpTelemetry>();
             }
 
-            if (!string.IsNullOrEmpty(connectionString))
-            {
-                services.AddDbContext<RentingDbContext>(options =>
-                    options.UseNpgsql(connectionString));
+            services.AddDbContext<RentingDbContext>(options =>
+                options.UseNpgsql(connectionString));
 
-                services.AddScoped<IVehicleRepository, SqlVehicleRepository>();
-                services.AddScoped<IRentalRepository, SqlRentalRepository>();
-            }
-            else
-            {
-                services.AddSingleton<IVehicleRepository, InMemoryVehicleRepository>();
-                services.AddSingleton<IRentalRepository, InMemoryRentalRepository>();
-            }
+            services.AddScoped<IVehicleRepository, VehicleRepository>();
+            services.AddScoped<IRentalRepository, RentalRepository>();
 
             return new InfrastructureBuilder(services);
         }

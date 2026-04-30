@@ -101,11 +101,11 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Infrastructure
             _serviceProvider.Dispose();
         }
 
-        private static void ConfigureServices(IServiceCollection services)
+        private void ConfigureServices(IServiceCollection services)
         {
             services.AddApiDependencies();
             services.AddLogging();
-            services.AddBaseInfrastructure(true);
+            services.AddBaseInfrastructure(true, Configuration.GetConnectionString("Default") ?? string.Empty);
         }
     }
 }

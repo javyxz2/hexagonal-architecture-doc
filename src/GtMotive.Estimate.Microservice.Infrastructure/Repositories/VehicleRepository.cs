@@ -13,9 +13,9 @@ using Microsoft.EntityFrameworkCore;
 namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
 {
     /// <summary>
-    /// PostgreSQL-backed implementation of <see cref="IVehicleRepository"/>.
+    /// EF Core implementation of <see cref="IVehicleRepository"/>.
     /// </summary>
-    public sealed class SqlVehicleRepository(RentingDbContext context) : IVehicleRepository
+    public sealed class VehicleRepository(RentingDbContext context) : IVehicleRepository
     {
         /// <inheritdoc />
         public async Task AddAsync(Vehicle vehicle)
