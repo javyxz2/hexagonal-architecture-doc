@@ -15,6 +15,12 @@ services:
       timeout: 5s
       retries: 10
 
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
   renting-api:
     build:
       context: .
@@ -25,10 +31,35 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
       ConnectionStrings__Default: "Host=postgres;Database=renting;Username=app;Password=secret"
+      Loki__Url: "http://loki:3100"
     depends_on:
       postgres:
         condition: service_healthy
+      loki:
+        condition: service_started
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - renting-api
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
 volumes:
   postgres_data:
+  grafana_data:

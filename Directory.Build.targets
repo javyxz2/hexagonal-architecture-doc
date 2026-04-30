@@ -109,6 +109,13 @@
         <PackageReference Update="Microsoft.Azure.Services.AppAuthentication" Version="1.5.0" />
         <PackageReference Update="McMaster.Extensions.CommandLineUtils" Version="3.1.0" />
 
+        <!-- Prometheus -->
+        <PackageReference Update="prometheus-net" Version="8.2.1" />
+        <PackageReference Update="prometheus-net.AspNetCore" Version="8.2.1" />
+
+        <!-- Loki / Span -->
+        <PackageReference Update="Serilog.Sinks.Grafana.Loki" Version="8.3.0" />
+
         <!--Third-party analyzers-->
         <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.435"/>
         <PackageReference Update="SonarAnalyzer.CSharp" Version="10.7.0.110445" />

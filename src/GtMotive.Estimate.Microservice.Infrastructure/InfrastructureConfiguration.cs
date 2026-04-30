@@ -32,7 +32,8 @@ namespace GtMotive.Estimate.Microservice.Infrastructure
             }
             else
             {
-                services.AddScoped<ITelemetry, NoOpTelemetry>();
+                services.AddScoped<ITelemetry>(_ =>
+                    new CompositeTelemetry(new ConsoleTelemetry(), new PrometheusTelemetry()));
             }
 
             services.AddDbContext<RentingDbContext>(options =>

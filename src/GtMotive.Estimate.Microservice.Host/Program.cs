@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -23,8 +25,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using Prometheus;
+
 using Serilog;
 using Serilog.Events;
+using Serilog.Sinks.Grafana.Loki;
 using Serilog.Sinks.SystemConsole.Themes;
 
 var builder = WebApplication.CreateBuilder();
@@ -104,19 +109,42 @@ builder.Services.AddSwagger(appSettings, builder.Configuration);
 
 var app = builder.Build();
 
+// Register Activity listener so StartActivity() returns real instances.
+using var activityListener = new ActivityListener
+{
+    ShouldListenTo = _ => true,
+    Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+    SampleUsingParentId = (ref ActivityCreationOptions<string> _) => ActivitySamplingResult.AllData,
+};
+ActivitySource.AddActivityListener(activityListener);
+
 // Logging configuration.
-Log.Logger = builder.Environment.IsDevelopment() ?
-    new LoggerConfiguration()
+var lokiUrl = app.Configuration["Loki:Url"];
+
+if (builder.Environment.IsDevelopment())
+{
+    var devLogConfig = new LoggerConfiguration()
         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
         .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
         .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
         .MinimumLevel.Override("System", LogEventLevel.Warning)
+        .Enrich.FromLogContext()
         .WriteTo.Console(
             outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}",
             theme: AnsiConsoleTheme.Literate,
-            formatProvider: CultureInfo.InvariantCulture)
-        .CreateLogger() :
-    new LoggerConfiguration()
+            formatProvider: CultureInfo.InvariantCulture);
+
+    if (!string.IsNullOrEmpty(lokiUrl))
+    {
+        List<LokiLabel> lokiLabels = [new() { Key = "app", Value = "renting-api" }];
+        devLogConfig = devLogConfig.WriteTo.GrafanaLoki(lokiUrl, labels: lokiLabels);
+    }
+
+    Log.Logger = devLogConfig.CreateLogger();
+}
+else
+{
+    Log.Logger = new LoggerConfiguration()
         .Enrich.FromLogContext()
         .Enrich.WithProperty("Application", "addoperation")
         .WriteTo.Console(
@@ -126,6 +154,7 @@ Log.Logger = builder.Environment.IsDevelopment() ?
             app.Services.GetRequiredService<TelemetryConfiguration>(), TelemetryConverter.Traces)
         .ReadFrom.Configuration(builder.Configuration)
         .CreateLogger();
+}
 
 var pathBase = new PathBase(builder.Configuration.GetValue("PathBase", defaultValue: PathBase.DefaultPathBase));
 
@@ -145,6 +174,7 @@ app.UseSwaggerInApplication(pathBase, builder.Configuration);
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapMetrics("/metrics");
 app.MapControllers();
 
 // Apply database schema automatically when PostgreSQL is configured.
