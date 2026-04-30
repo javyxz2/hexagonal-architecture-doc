@@ -95,5 +95,22 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore.AddVehicle
                     It.IsAny<System.Collections.Generic.IDictionary<string, double>>()),
                 Times.Once);
         }
+
+        [Fact]
+        public async Task Execute_WhenRepositoryThrowsDomainException_Propagates()
+        {
+            // Simulates the repository catching a DbUpdateException (duplicate plate) and
+            // re-throwing as DomainException — the use case must not swallow it.
+            var currentYear = DateTime.UtcNow.Year;
+            _vehicleRepositoryMock
+                .Setup(r => r.AddAsync(It.IsAny<Vehicle>()))
+                .ThrowsAsync(new DomainException("A vehicle with license plate '1234ABC' already exists."));
+
+            var input = new AddVehicleInput("Toyota", "Corolla", "1234ABC", currentYear);
+
+            await Assert.ThrowsAsync<DomainException>(() => _sut.Execute(input));
+
+            _outputPortMock.Verify(o => o.StandardHandle(It.IsAny<AddVehicleOutput>()), Times.Never);
+        }
     }
 }

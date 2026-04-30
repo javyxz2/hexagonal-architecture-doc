@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using GtMotive.Estimate.Microservice.Domain;
 using GtMotive.Estimate.Microservice.Domain.Entities;
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
 using GtMotive.Estimate.Microservice.Infrastructure.Persistence;
@@ -21,8 +22,17 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Repositories
         public async Task AddAsync(Vehicle vehicle)
         {
             ArgumentNullException.ThrowIfNull(vehicle);
-            await context.Vehicles.AddAsync(vehicle);
-            await context.SaveChangesAsync();
+
+            try
+            {
+                await context.Vehicles.AddAsync(vehicle);
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                context.ChangeTracker.Clear();
+                throw new DomainException($"A vehicle with license plate '{vehicle.LicensePlate}' already exists.");
+            }
         }
 
         /// <inheritdoc />
