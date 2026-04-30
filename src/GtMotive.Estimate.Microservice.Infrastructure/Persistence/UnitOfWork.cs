@@ -17,12 +17,6 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence
         private IDbContextTransaction? _transaction;
 
         /// <inheritdoc />
-        public async Task<int> SaveAsync()
-        {
-            return await context.SaveChangesAsync();
-        }
-
-        /// <inheritdoc />
         public async Task BeginTransactionAsync()
         {
             _transaction = await context.Database.BeginTransactionAsync();

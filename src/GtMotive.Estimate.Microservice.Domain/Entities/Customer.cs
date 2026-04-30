@@ -12,7 +12,7 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// Initializes a new instance of the <see cref="Customer"/> class.
         /// </summary>
         /// <param name="customerName">The full name of the customer.</param>
-        /// <param name="customerDni">The DNI of the customer (optional).</param>
+        /// <param name="customerDni">The DNI of the customer.</param>
         public Customer(string customerName, string customerDni)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(customerName);

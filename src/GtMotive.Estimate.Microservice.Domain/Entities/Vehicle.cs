@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 namespace GtMotive.Estimate.Microservice.Domain.Entities
 {
@@ -38,13 +39,13 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         public long VehicleId { get; protected set; }
 
         /// <summary>Gets the vehicle brand.</summary>
-        public string Brand { get; private set; }
+        public string Brand { get; private set; } = string.Empty;
 
         /// <summary>Gets the vehicle model.</summary>
-        public string Model { get; private set; }
+        public string Model { get; private set; } = string.Empty;
 
         /// <summary>Gets the license plate.</summary>
-        public string LicensePlate { get; private set; }
+        public string LicensePlate { get; private set; } = string.Empty;
 
         /// <summary>Gets the year of manufacture.</summary>
         public int ManufactureYear { get; private set; }
