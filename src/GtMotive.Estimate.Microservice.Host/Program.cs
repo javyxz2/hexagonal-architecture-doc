@@ -139,8 +139,9 @@ if (builder.Environment.IsDevelopment())
         List<LokiLabel> lokiLabels = [new() { Key = "app", Value = "renting-api" }];
         devLogConfig = devLogConfig.WriteTo.Logger(lc => lc
             .Filter.ByIncludingOnly(evt =>
-                evt.Properties.TryGetValue("SourceContext", out var src) &&
-                src.ToString().Contains("UseCases", StringComparison.Ordinal))
+                evt.Level >= Serilog.Events.LogEventLevel.Error ||
+                (evt.Properties.TryGetValue("SourceContext", out var src) &&
+                 src.ToString().Contains("UseCases", StringComparison.Ordinal)))
             .WriteTo.GrafanaLoki(lokiUrl, labels: lokiLabels));
     }
 
