@@ -34,6 +34,11 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Persistence.Configuratio
                 .HasForeignKey(r => r.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne<Vehicle>()
+                .WithMany()
+                .HasForeignKey(r => r.VehicleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasIndex(r => new { r.VehicleId, r.ReturnedDate });
             builder.HasIndex(r => r.CustomerId);
         }

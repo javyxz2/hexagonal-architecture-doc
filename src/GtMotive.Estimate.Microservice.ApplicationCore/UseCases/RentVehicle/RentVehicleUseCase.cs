@@ -152,9 +152,8 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
             var customer = await _customerRepository.FindOrCreateAsync(customerName, customerDni);
 
             _logger.LogInformation(
-                "Customer resolved: {CustomerName} (DNI: {CustomerDni}, Id: {CustomerId})",
+                "Customer resolved: {CustomerName} (Id: {CustomerId})",
                 customer.CustomerName,
-                customer.CustomerDni,
                 customer.CustomerId);
 
             return customer;
