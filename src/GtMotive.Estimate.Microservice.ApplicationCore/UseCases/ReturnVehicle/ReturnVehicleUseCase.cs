@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 
-using GtMotive.Estimate.Microservice.Domain;
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
 
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
@@ -41,11 +40,6 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
             {
                 _outputPort.NotFoundHandle($"No active rental found for vehicle {input.VehicleId}.");
                 return;
-            }
-
-            if (DateTime.UtcNow < rental.PlannedEndDate)
-            {
-                throw new DomainException($"Vehicle cannot be returned before the planned end date ({rental.PlannedEndDate:yyyy-MM-dd}).");
             }
 
             var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId);
