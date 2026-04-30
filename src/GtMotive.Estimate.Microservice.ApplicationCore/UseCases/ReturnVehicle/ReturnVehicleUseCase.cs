@@ -14,6 +14,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
 
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IRentalRepository _rentalRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IReturnVehicleOutputPort _outputPort;
         private readonly ITelemetry _telemetry;
         private readonly IAppLogger<ReturnVehicleUseCase> _logger;
@@ -23,18 +24,21 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
         /// </summary>
         /// <param name="vehicleRepository">Vehicle repository.</param>
         /// <param name="rentalRepository">Rental repository.</param>
+        /// <param name="unitOfWork">Unit of work for transactional control.</param>
         /// <param name="outputPort">Combined output port.</param>
         /// <param name="telemetry">Telemetry service.</param>
         /// <param name="logger">Logger.</param>
         public ReturnVehicleUseCase(
             IVehicleRepository vehicleRepository,
             IRentalRepository rentalRepository,
+            IUnitOfWork unitOfWork,
             IReturnVehicleOutputPort outputPort,
             ITelemetry telemetry,
             IAppLogger<ReturnVehicleUseCase> logger)
         {
             _vehicleRepository = vehicleRepository;
             _rentalRepository = rentalRepository;
+            _unitOfWork = unitOfWork;
             _outputPort = outputPort;
             _telemetry = telemetry;
             _logger = logger;
@@ -69,8 +73,18 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
                 rental.Complete();
                 vehicle.MarkAsAvailable();
 
-                await _rentalRepository.UpdateAsync(rental);
-                await _vehicleRepository.UpdateAsync(vehicle);
+                await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    await _rentalRepository.UpdateAsync(rental);
+                    await _vehicleRepository.UpdateAsync(vehicle);
+                    await _unitOfWork.CommitAsync();
+                }
+                catch
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw;
+                }
 
                 activity?.SetTag("rental.id", rental.RentalId);
                 activity?.SetTag("rental.customer_id", rental.CustomerId);

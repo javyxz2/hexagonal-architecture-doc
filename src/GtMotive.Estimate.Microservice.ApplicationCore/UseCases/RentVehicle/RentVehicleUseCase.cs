@@ -18,6 +18,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IRentalRepository _rentalRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IRentVehicleOutputPort _outputPort;
         private readonly ITelemetry _telemetry;
         private readonly IAppLogger<RentVehicleUseCase> _logger;
@@ -28,6 +29,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
         /// <param name="vehicleRepository">Vehicle repository.</param>
         /// <param name="rentalRepository">Rental repository.</param>
         /// <param name="customerRepository">Customer repository.</param>
+        /// <param name="unitOfWork">Unit of work for transactional control.</param>
         /// <param name="outputPort">Combined output port.</param>
         /// <param name="telemetry">Telemetry service.</param>
         /// <param name="logger">Logger.</param>
@@ -35,6 +37,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
             IVehicleRepository vehicleRepository,
             IRentalRepository rentalRepository,
             ICustomerRepository customerRepository,
+            IUnitOfWork unitOfWork,
             IRentVehicleOutputPort outputPort,
             ITelemetry telemetry,
             IAppLogger<RentVehicleUseCase> logger)
@@ -42,6 +45,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
             _vehicleRepository = vehicleRepository;
             _rentalRepository = rentalRepository;
             _customerRepository = customerRepository;
+            _unitOfWork = unitOfWork;
             _outputPort = outputPort;
             _telemetry = telemetry;
             _logger = logger;
@@ -89,8 +93,18 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 var rental = new Rental(vehicle.VehicleId, customer.CustomerId, input.StartDate, input.PlannedEndDate);
                 vehicle.MarkAsRented();
 
-                await _rentalRepository.AddAsync(rental);
-                await _vehicleRepository.UpdateAsync(vehicle);
+                await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    await _rentalRepository.AddAsync(rental);
+                    await _vehicleRepository.UpdateAsync(vehicle);
+                    await _unitOfWork.CommitAsync();
+                }
+                catch
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw;
+                }
 
                 activity?.SetTag("rental.id", rental.RentalId);
                 activity?.SetTag("rental.customer_id", customer.CustomerId);
