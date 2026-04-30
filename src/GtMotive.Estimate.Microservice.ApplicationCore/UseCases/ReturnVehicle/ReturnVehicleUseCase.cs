@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
@@ -8,9 +10,13 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
     /// <summary>Use case to return a rented vehicle.</summary>
     public sealed class ReturnVehicleUseCase : IUseCase<ReturnVehicleInput>
     {
+        private static readonly ActivitySource ActivitySource = new("GtMotive.Estimate.Renting");
+
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IRentalRepository _rentalRepository;
         private readonly IReturnVehicleOutputPort _outputPort;
+        private readonly ITelemetry _telemetry;
+        private readonly IAppLogger<ReturnVehicleUseCase> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReturnVehicleUseCase"/> class.
@@ -18,14 +24,20 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
         /// <param name="vehicleRepository">Vehicle repository.</param>
         /// <param name="rentalRepository">Rental repository.</param>
         /// <param name="outputPort">Combined output port.</param>
+        /// <param name="telemetry">Telemetry service.</param>
+        /// <param name="logger">Logger.</param>
         public ReturnVehicleUseCase(
             IVehicleRepository vehicleRepository,
             IRentalRepository rentalRepository,
-            IReturnVehicleOutputPort outputPort)
+            IReturnVehicleOutputPort outputPort,
+            ITelemetry telemetry,
+            IAppLogger<ReturnVehicleUseCase> logger)
         {
             _vehicleRepository = vehicleRepository;
             _rentalRepository = rentalRepository;
             _outputPort = outputPort;
+            _telemetry = telemetry;
+            _logger = logger;
         }
 
         /// <summary>Executes the return vehicle use case.</summary>
@@ -35,27 +47,61 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
         {
             ArgumentNullException.ThrowIfNull(input);
 
-            var rental = await _rentalRepository.GetActiveByVehicleIdAsync(input.VehicleId);
-            if (rental == null)
+            using var activity = ActivitySource.StartActivity("vehicle.return");
+            activity?.SetTag("vehicle.id", input.VehicleId);
+
+            try
             {
-                _outputPort.NotFoundHandle($"No active rental found for vehicle {input.VehicleId}.");
-                return;
-            }
+                var rental = await _rentalRepository.GetActiveByVehicleIdAsync(input.VehicleId);
+                if (rental == null)
+                {
+                    _outputPort.NotFoundHandle($"No active rental found for vehicle {input.VehicleId}.");
+                    return;
+                }
 
-            var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId);
-            if (vehicle == null)
+                var vehicle = await _vehicleRepository.GetByIdAsync(input.VehicleId);
+                if (vehicle == null)
+                {
+                    _outputPort.NotFoundHandle($"Vehicle {input.VehicleId} was not found.");
+                    return;
+                }
+
+                rental.Complete();
+                vehicle.MarkAsAvailable();
+
+                await _rentalRepository.UpdateAsync(rental);
+                await _vehicleRepository.UpdateAsync(vehicle);
+
+                activity?.SetTag("rental.id", rental.RentalId);
+                activity?.SetTag("rental.customer_id", rental.CustomerId);
+                activity?.SetTag("rental.returned_date", rental.ReturnedDate);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+
+                _logger.LogInformation(
+                    "Vehicle {VehicleId} returned by customer {CustomerId} on {ReturnedDate:yyyy-MM-dd} (rentalId: {RentalId})",
+                    rental.VehicleId,
+                    rental.CustomerId,
+                    rental.ReturnedDate,
+                    rental.RentalId);
+
+                _telemetry.TrackEvent(
+                    "VehicleReturned",
+                    properties: new Dictionary<string, string>
+                    {
+                        ["VehicleId"] = rental.VehicleId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        ["CustomerId"] = rental.CustomerId,
+                        ["RentalId"] = rental.RentalId.ToString(),
+                        ["ReturnedDate"] = rental.ReturnedDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                    },
+                    metrics: new Dictionary<string, double> { ["Count"] = 1 });
+
+                _outputPort.StandardHandle(new ReturnVehicleOutput(rental.RentalId, rental.ReturnedDate!.Value));
+            }
+            catch (Exception ex)
             {
-                _outputPort.NotFoundHandle($"Vehicle {input.VehicleId} was not found.");
-                return;
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
             }
-
-            rental.Complete();
-            vehicle.MarkAsAvailable();
-
-            await _rentalRepository.UpdateAsync(rental);
-            await _vehicleRepository.UpdateAsync(vehicle);
-
-            _outputPort.StandardHandle(new ReturnVehicleOutput(rental.RentalId, rental.ReturnedDate!.Value));
         }
     }
 }

@@ -21,6 +21,10 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Telemetry
             "vehicles_rented_total",
             "Total number of vehicle rentals.");
 
+        private static readonly Counter VehiclesReturnedTotal = Metrics.CreateCounter(
+            "vehicles_returned_total",
+            "Total number of completed vehicle rentals.");
+
         /// <inheritdoc />
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
@@ -32,6 +36,10 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Telemetry
 
                 case "VehicleRented":
                     VehiclesRentedTotal.Inc();
+                    break;
+
+                case "VehicleReturned":
+                    VehiclesReturnedTotal.Inc();
                     break;
 
                 default:

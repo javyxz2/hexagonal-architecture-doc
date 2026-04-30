@@ -31,7 +31,10 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAvailableVe
             ArgumentNullException.ThrowIfNull(input);
 
             var vehicles = await _vehicleRepository.GetAvailableAsync();
-            var dtos = vehicles.Select(v => new VehicleDto(v.VehicleId, v.Brand, v.Model, v.LicensePlate, v.ManufactureYear)).ToList();
+            var dtos = vehicles
+                .OrderBy(v => v.VehicleId)
+                .Select(v => new VehicleDto(v.VehicleId, v.Brand, v.Model, v.LicensePlate, v.ManufactureYear))
+                .ToList();
             _outputPort.StandardHandle(new GetAvailableVehiclesOutput(dtos));
         }
     }
