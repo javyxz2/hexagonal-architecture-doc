@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 using GtMotive.Estimate.Microservice.Api.UseCases.AddVehicle;
@@ -20,13 +20,8 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Specs.Vehicles
     /// The host is excluded — services are composed via the real DI container.
     /// Real in-memory repositories are used; no mocks.
     /// </summary>
-    public sealed class AddVehicleFunctionalTests : FunctionalTestBase
+    public sealed class AddVehicleFunctionalTests(CompositionRootTestFixture fixture) : FunctionalTestBase(fixture)
     {
-        public AddVehicleFunctionalTests(CompositionRootTestFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [Fact]
         public async Task AddVehicle_WhenValidInput_VehicleAppearsInAvailableList()
         {

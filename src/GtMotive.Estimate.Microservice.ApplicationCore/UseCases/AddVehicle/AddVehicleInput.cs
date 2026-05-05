@@ -1,33 +1,25 @@
-namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.AddVehicle
+﻿namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.AddVehicle
 {
     /// <summary>Input for the AddVehicle use case.</summary>
-    public sealed class AddVehicleInput : IUseCaseInput
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="AddVehicleInput"/> class.
+    /// </remarks>
+    /// <param name="brand">Vehicle brand.</param>
+    /// <param name="model">Vehicle model.</param>
+    /// <param name="licensePlate">License plate.</param>
+    /// <param name="manufactureYear">Year of manufacture.</param>
+    public sealed class AddVehicleInput(string brand, string model, string licensePlate, int manufactureYear) : IUseCaseInput
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AddVehicleInput"/> class.
-        /// </summary>
-        /// <param name="brand">Vehicle brand.</param>
-        /// <param name="model">Vehicle model.</param>
-        /// <param name="licensePlate">License plate.</param>
-        /// <param name="manufactureYear">Year of manufacture.</param>
-        public AddVehicleInput(string brand, string model, string licensePlate, int manufactureYear)
-        {
-            Brand = brand;
-            Model = model;
-            LicensePlate = licensePlate;
-            ManufactureYear = manufactureYear;
-        }
-
         /// <summary>Gets the vehicle brand.</summary>
-        public string Brand { get; }
+        public string Brand { get; } = brand;
 
         /// <summary>Gets the vehicle model.</summary>
-        public string Model { get; }
+        public string Model { get; } = model;
 
         /// <summary>Gets the license plate.</summary>
-        public string LicensePlate { get; }
+        public string LicensePlate { get; } = licensePlate;
 
         /// <summary>Gets the year of manufacture.</summary>
-        public int ManufactureYear { get; }
+        public int ManufactureYear { get; } = manufactureYear;
     }
 }

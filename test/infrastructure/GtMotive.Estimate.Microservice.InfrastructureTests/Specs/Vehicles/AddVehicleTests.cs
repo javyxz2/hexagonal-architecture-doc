@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -17,13 +17,8 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs.Vehicles
     /// Scope: host-level only — verifies routing, model binding and the error-handling middleware.
     /// Business logic correctness is covered by unit and functional tests.
     /// </summary>
-    public sealed class AddVehicleTests : InfrastructureTestBase
+    public sealed class AddVehicleTests(GenericInfrastructureTestServerFixture fixture) : InfrastructureTestBase(fixture)
     {
-        public AddVehicleTests(GenericInfrastructureTestServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [Fact]
         public async Task PostVehicle_WhenManufactureYearTooOld_ReturnsBadRequest()
         {

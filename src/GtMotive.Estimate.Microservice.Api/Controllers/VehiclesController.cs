@@ -21,63 +21,49 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GtMotive.Estimate.Microservice.Api.Controllers
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VehiclesController"/> class.
+    /// </summary>
+    /// <param name="addVehicleUseCase">Add vehicle use case.</param>
+    /// <param name="addVehiclePresenter">Add vehicle presenter.</param>
+    /// <param name="getAllVehiclesUseCase">Get all vehicles use case.</param>
+    /// <param name="getAllVehiclesPresenter">Get all vehicles presenter.</param>
+    /// <param name="getAvailableVehiclesUseCase">Get available vehicles use case.</param>
+    /// <param name="getAvailableVehiclesPresenter">Get available vehicles presenter.</param>
+    /// <param name="rentVehicleUseCase">Rent vehicle use case.</param>
+    /// <param name="rentVehiclePresenter">Rent vehicle presenter.</param>
+    /// <param name="returnVehicleUseCase">Return vehicle use case.</param>
+    /// <param name="returnVehiclePresenter">Return vehicle presenter.</param>
     [ApiController]
     [Authorize]
     [Route("api/vehicles")]
     [SuppressMessage("Design", "S107:Methods should not have too many parameters", Justification = "Controller aggregates all vehicle use cases by design.")]
-    public class VehiclesController : ControllerBase
+    public class VehiclesController(
+        IUseCase<AddVehicleInput> addVehicleUseCase,
+        AddVehiclePresenter addVehiclePresenter,
+        IUseCase<GetAllVehiclesInput> getAllVehiclesUseCase,
+        GetAllVehiclesPresenter getAllVehiclesPresenter,
+        IUseCase<GetAvailableVehiclesInput> getAvailableVehiclesUseCase,
+        GetAvailableVehiclesPresenter getAvailableVehiclesPresenter,
+        IUseCase<RentVehicleInput> rentVehicleUseCase,
+        RentVehiclePresenter rentVehiclePresenter,
+        IUseCase<ReturnVehicleInput> returnVehicleUseCase,
+        ReturnVehiclePresenter returnVehiclePresenter) : ControllerBase
     {
-        private readonly IUseCase<AddVehicleInput> _addVehicleUseCase;
-        private readonly IWebApiPresenter _addVehiclePresenter;
+        private readonly IUseCase<AddVehicleInput> _addVehicleUseCase = addVehicleUseCase;
+        private readonly IWebApiPresenter _addVehiclePresenter = addVehiclePresenter;
 
-        private readonly IUseCase<GetAllVehiclesInput> _getAllVehiclesUseCase;
-        private readonly IWebApiPresenter _getAllVehiclesPresenter;
+        private readonly IUseCase<GetAllVehiclesInput> _getAllVehiclesUseCase = getAllVehiclesUseCase;
+        private readonly IWebApiPresenter _getAllVehiclesPresenter = getAllVehiclesPresenter;
 
-        private readonly IUseCase<GetAvailableVehiclesInput> _getAvailableVehiclesUseCase;
-        private readonly IWebApiPresenter _getAvailableVehiclesPresenter;
+        private readonly IUseCase<GetAvailableVehiclesInput> _getAvailableVehiclesUseCase = getAvailableVehiclesUseCase;
+        private readonly IWebApiPresenter _getAvailableVehiclesPresenter = getAvailableVehiclesPresenter;
 
-        private readonly IUseCase<RentVehicleInput> _rentVehicleUseCase;
-        private readonly IWebApiPresenter _rentVehiclePresenter;
+        private readonly IUseCase<RentVehicleInput> _rentVehicleUseCase = rentVehicleUseCase;
+        private readonly IWebApiPresenter _rentVehiclePresenter = rentVehiclePresenter;
 
-        private readonly IUseCase<ReturnVehicleInput> _returnVehicleUseCase;
-        private readonly IWebApiPresenter _returnVehiclePresenter;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VehiclesController"/> class.
-        /// </summary>
-        /// <param name="addVehicleUseCase">Add vehicle use case.</param>
-        /// <param name="addVehiclePresenter">Add vehicle presenter.</param>
-        /// <param name="getAllVehiclesUseCase">Get all vehicles use case.</param>
-        /// <param name="getAllVehiclesPresenter">Get all vehicles presenter.</param>
-        /// <param name="getAvailableVehiclesUseCase">Get available vehicles use case.</param>
-        /// <param name="getAvailableVehiclesPresenter">Get available vehicles presenter.</param>
-        /// <param name="rentVehicleUseCase">Rent vehicle use case.</param>
-        /// <param name="rentVehiclePresenter">Rent vehicle presenter.</param>
-        /// <param name="returnVehicleUseCase">Return vehicle use case.</param>
-        /// <param name="returnVehiclePresenter">Return vehicle presenter.</param>
-        public VehiclesController(
-            IUseCase<AddVehicleInput> addVehicleUseCase,
-            AddVehiclePresenter addVehiclePresenter,
-            IUseCase<GetAllVehiclesInput> getAllVehiclesUseCase,
-            GetAllVehiclesPresenter getAllVehiclesPresenter,
-            IUseCase<GetAvailableVehiclesInput> getAvailableVehiclesUseCase,
-            GetAvailableVehiclesPresenter getAvailableVehiclesPresenter,
-            IUseCase<RentVehicleInput> rentVehicleUseCase,
-            RentVehiclePresenter rentVehiclePresenter,
-            IUseCase<ReturnVehicleInput> returnVehicleUseCase,
-            ReturnVehiclePresenter returnVehiclePresenter)
-        {
-            _addVehicleUseCase = addVehicleUseCase;
-            _addVehiclePresenter = addVehiclePresenter;
-            _getAllVehiclesUseCase = getAllVehiclesUseCase;
-            _getAllVehiclesPresenter = getAllVehiclesPresenter;
-            _getAvailableVehiclesUseCase = getAvailableVehiclesUseCase;
-            _getAvailableVehiclesPresenter = getAvailableVehiclesPresenter;
-            _rentVehicleUseCase = rentVehicleUseCase;
-            _rentVehiclePresenter = rentVehiclePresenter;
-            _returnVehicleUseCase = returnVehicleUseCase;
-            _returnVehiclePresenter = returnVehiclePresenter;
-        }
+        private readonly IUseCase<ReturnVehicleInput> _returnVehicleUseCase = returnVehicleUseCase;
+        private readonly IWebApiPresenter _returnVehiclePresenter = returnVehiclePresenter;
 
         /// <summary>Adds a new vehicle to the fleet.</summary>
         /// <param name="request">Vehicle data.</param>

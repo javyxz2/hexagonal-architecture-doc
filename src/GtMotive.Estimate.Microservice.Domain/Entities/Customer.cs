@@ -17,8 +17,8 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(customerName);
             ArgumentException.ThrowIfNullOrWhiteSpace(customerDni);
-            this.CustomerName = customerName;
-            this.CustomerDni = customerDni;
+            CustomerName = customerName;
+            CustomerDni = customerDni;
         }
 
         /// <summary>

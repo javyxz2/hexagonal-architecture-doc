@@ -20,11 +20,11 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
             ArgumentException.ThrowIfNullOrWhiteSpace(brand);
             ArgumentException.ThrowIfNullOrWhiteSpace(model);
             ArgumentException.ThrowIfNullOrWhiteSpace(licensePlate);
-            this.Brand = brand;
-            this.Model = model;
-            this.LicensePlate = licensePlate;
-            this.ManufactureYear = manufactureYear;
-            this.IsAvailable = true;
+            Brand = brand;
+            Model = model;
+            LicensePlate = licensePlate;
+            ManufactureYear = manufactureYear;
+            IsAvailable = true;
         }
 
         /// <summary>
@@ -54,9 +54,9 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         public bool IsAvailable { get; private set; }
 
         /// <summary>Marks the vehicle as rented.</summary>
-        public void MarkAsRented() => this.IsAvailable = false;
+        public void MarkAsRented() => IsAvailable = false;
 
         /// <summary>Marks the vehicle as available.</summary>
-        public void MarkAsAvailable() => this.IsAvailable = true;
+        public void MarkAsAvailable() => IsAvailable = true;
     }
 }

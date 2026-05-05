@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace GtMotive.Estimate.Microservice.Domain.Entities
 {
@@ -16,11 +16,11 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         /// <param name="plannedEndDate">The planned end date of the rental.</param>
         public Rental(long vehicleId, long customerId, DateTime startDate, DateTime plannedEndDate)
         {
-            this.RentalId = Guid.NewGuid();
-            this.VehicleId = vehicleId;
-            this.CustomerId = customerId;
-            this.StartDate = startDate;
-            this.PlannedEndDate = plannedEndDate;
+            RentalId = Guid.NewGuid();
+            VehicleId = vehicleId;
+            CustomerId = customerId;
+            StartDate = startDate;
+            PlannedEndDate = plannedEndDate;
         }
 
         /// <summary>
@@ -50,9 +50,9 @@ namespace GtMotive.Estimate.Microservice.Domain.Entities
         public DateTime? ReturnedDate { get; private set; }
 
         /// <summary>Gets a value indicating whether the rental is still active.</summary>
-        public bool IsActive => this.ReturnedDate == null;
+        public bool IsActive => ReturnedDate == null;
 
         /// <summary>Completes the rental by recording the actual return date.</summary>
-        public void Complete() => this.ReturnedDate = DateTime.UtcNow;
+        public void Complete() => ReturnedDate = DateTime.UtcNow;
     }
 }
