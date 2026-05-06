@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -8,39 +8,29 @@ using GtMotive.Estimate.Microservice.Domain.Interfaces;
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
 {
     /// <summary>Use case to return a rented vehicle.</summary>
-    public sealed class ReturnVehicleUseCase : IUseCase<ReturnVehicleInput>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ReturnVehicleUseCase"/> class.
+    /// </remarks>
+    /// <param name="vehicleRepository">Vehicle repository.</param>
+    /// <param name="rentalRepository">Rental repository.</param>
+    /// <param name="unitOfWork">Unit of work for transactional control.</param>
+    /// <param name="outputPort">Combined output port.</param>
+    /// <param name="telemetry">Telemetry service.</param>
+    /// <param name="logger">Logger.</param>
+    public sealed class ReturnVehicleUseCase(
+        IVehicleRepository vehicleRepository,
+        IRentalRepository rentalRepository,
+        IUnitOfWork unitOfWork,
+        IReturnVehicleOutputPort outputPort,
+        ITelemetry telemetry,
+        IAppLogger<ReturnVehicleUseCase> logger) : IUseCase<ReturnVehicleInput>
     {
-        private readonly IVehicleRepository _vehicleRepository;
-        private readonly IRentalRepository _rentalRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IReturnVehicleOutputPort _outputPort;
-        private readonly ITelemetry _telemetry;
-        private readonly IAppLogger<ReturnVehicleUseCase> _logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReturnVehicleUseCase"/> class.
-        /// </summary>
-        /// <param name="vehicleRepository">Vehicle repository.</param>
-        /// <param name="rentalRepository">Rental repository.</param>
-        /// <param name="unitOfWork">Unit of work for transactional control.</param>
-        /// <param name="outputPort">Combined output port.</param>
-        /// <param name="telemetry">Telemetry service.</param>
-        /// <param name="logger">Logger.</param>
-        public ReturnVehicleUseCase(
-            IVehicleRepository vehicleRepository,
-            IRentalRepository rentalRepository,
-            IUnitOfWork unitOfWork,
-            IReturnVehicleOutputPort outputPort,
-            ITelemetry telemetry,
-            IAppLogger<ReturnVehicleUseCase> logger)
-        {
-            _vehicleRepository = vehicleRepository;
-            _rentalRepository = rentalRepository;
-            _unitOfWork = unitOfWork;
-            _outputPort = outputPort;
-            _telemetry = telemetry;
-            _logger = logger;
-        }
+        private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
+        private readonly IRentalRepository _rentalRepository = rentalRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IReturnVehicleOutputPort _outputPort = outputPort;
+        private readonly ITelemetry _telemetry = telemetry;
+        private readonly IAppLogger<ReturnVehicleUseCase> _logger = logger;
 
         /// <summary>Executes the return vehicle use case.</summary>
         /// <param name="input">Input data.</param>
