@@ -71,7 +71,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 }
 
                 var customer = await FindOrCreateCustomerAsync(input.CustomerName, input.CustomerDni);
-                bool hasActiveRental = await _rentalRepository.HasActiveRentalAsync(customer.CustomerId);
+                var hasActiveRental = await _rentalRepository.HasActiveRentalAsync(customer.CustomerId);
                 if (hasActiveRental)
                 {
                     throw new DomainException("Customer already has an active rental.");
