@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,27 +7,20 @@ using GtMotive.Estimate.Microservice.Domain.Interfaces;
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.GetAllVehicles
 {
     /// <summary>Use case to retrieve all vehicles with their availability status.</summary>
-    public sealed class GetAllVehiclesUseCase : IUseCase<GetAllVehiclesInput>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GetAllVehiclesUseCase"/> class.
+    /// </remarks>
+    /// <param name="vehicleRepository">Vehicle repository.</param>
+    /// <param name="outputPort">Output port for standard response.</param>
+    /// <param name="logger">Logger.</param>
+    public sealed class GetAllVehiclesUseCase(
+        IVehicleRepository vehicleRepository,
+        IOutputPortStandard<GetAllVehiclesOutput> outputPort,
+        IAppLogger<GetAllVehiclesUseCase> logger) : IUseCase<GetAllVehiclesInput>
     {
-        private readonly IVehicleRepository _vehicleRepository;
-        private readonly IOutputPortStandard<GetAllVehiclesOutput> _outputPort;
-        private readonly IAppLogger<GetAllVehiclesUseCase> _logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GetAllVehiclesUseCase"/> class.
-        /// </summary>
-        /// <param name="vehicleRepository">Vehicle repository.</param>
-        /// <param name="outputPort">Output port for standard response.</param>
-        /// <param name="logger">Logger.</param>
-        public GetAllVehiclesUseCase(
-            IVehicleRepository vehicleRepository,
-            IOutputPortStandard<GetAllVehiclesOutput> outputPort,
-            IAppLogger<GetAllVehiclesUseCase> logger)
-        {
-            _vehicleRepository = vehicleRepository;
-            _outputPort = outputPort;
-            _logger = logger;
-        }
+        private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
+        private readonly IOutputPortStandard<GetAllVehiclesOutput> _outputPort = outputPort;
+        private readonly IAppLogger<GetAllVehiclesUseCase> _logger = logger;
 
         /// <summary>Executes the get all vehicles use case.</summary>
         /// <param name="input">Input data.</param>

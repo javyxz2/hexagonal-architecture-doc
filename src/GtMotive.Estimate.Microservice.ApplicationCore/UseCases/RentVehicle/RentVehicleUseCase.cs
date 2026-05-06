@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,43 +11,32 @@ using GtMotive.Estimate.Microservice.Domain.Interfaces;
 namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
 {
     /// <summary>Use case to rent a vehicle to a customer.</summary>
-    public sealed class RentVehicleUseCase : IUseCase<RentVehicleInput>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="RentVehicleUseCase"/> class.
+    /// </remarks>
+    /// <param name="vehicleRepository">Vehicle repository.</param>
+    /// <param name="rentalRepository">Rental repository.</param>
+    /// <param name="customerRepository">Customer repository.</param>
+    /// <param name="unitOfWork">Unit of work for transactional control.</param>
+    /// <param name="outputPort">Combined output port.</param>
+    /// <param name="telemetry">Telemetry service.</param>
+    /// <param name="logger">Logger.</param>
+    public sealed class RentVehicleUseCase(
+        IVehicleRepository vehicleRepository,
+        IRentalRepository rentalRepository,
+        ICustomerRepository customerRepository,
+        IUnitOfWork unitOfWork,
+        IRentVehicleOutputPort outputPort,
+        ITelemetry telemetry,
+        IAppLogger<RentVehicleUseCase> logger) : IUseCase<RentVehicleInput>
     {
-        private readonly IVehicleRepository _vehicleRepository;
-        private readonly IRentalRepository _rentalRepository;
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IRentVehicleOutputPort _outputPort;
-        private readonly ITelemetry _telemetry;
-        private readonly IAppLogger<RentVehicleUseCase> _logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RentVehicleUseCase"/> class.
-        /// </summary>
-        /// <param name="vehicleRepository">Vehicle repository.</param>
-        /// <param name="rentalRepository">Rental repository.</param>
-        /// <param name="customerRepository">Customer repository.</param>
-        /// <param name="unitOfWork">Unit of work for transactional control.</param>
-        /// <param name="outputPort">Combined output port.</param>
-        /// <param name="telemetry">Telemetry service.</param>
-        /// <param name="logger">Logger.</param>
-        public RentVehicleUseCase(
-            IVehicleRepository vehicleRepository,
-            IRentalRepository rentalRepository,
-            ICustomerRepository customerRepository,
-            IUnitOfWork unitOfWork,
-            IRentVehicleOutputPort outputPort,
-            ITelemetry telemetry,
-            IAppLogger<RentVehicleUseCase> logger)
-        {
-            _vehicleRepository = vehicleRepository;
-            _rentalRepository = rentalRepository;
-            _customerRepository = customerRepository;
-            _unitOfWork = unitOfWork;
-            _outputPort = outputPort;
-            _telemetry = telemetry;
-            _logger = logger;
-        }
+        private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
+        private readonly IRentalRepository _rentalRepository = rentalRepository;
+        private readonly ICustomerRepository _customerRepository = customerRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IRentVehicleOutputPort _outputPort = outputPort;
+        private readonly ITelemetry _telemetry = telemetry;
+        private readonly IAppLogger<RentVehicleUseCase> _logger = logger;
 
         /// <summary>Executes the rent vehicle use case.</summary>
         /// <param name="input">Input data.</param>
