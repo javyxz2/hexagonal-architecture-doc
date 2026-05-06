@@ -16,15 +16,15 @@ using GtMotive.Estimate.Microservice.Infrastructure;
 using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Settings;
 using GtMotive.Estimate.Microservice.Infrastructure.Persistence;
 
-using IdentityServer4.AccessTokenValidation;
-
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 using Prometheus;
 
@@ -104,15 +104,16 @@ else
 {
     JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-    builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultScheme = IdentityServerAuthenticationDefaults.AuthenticationScheme;
-        })
-        .AddIdentityServerAuthentication(options =>
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
             options.Authority = appSettings.JwtAuthority;
-            options.ApiName = "estimate-api";
-            options.SupportedTokens = SupportedTokens.Jwt;
+            options.Audience = "estimate-api";
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = true,
+                ValidateIssuer = true
+            };
         });
 }
 
