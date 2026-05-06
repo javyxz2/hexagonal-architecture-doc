@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
@@ -8,19 +8,14 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Telemetry
     /// <summary>
     /// Delegates telemetry calls to multiple <see cref="ITelemetry"/> implementations.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="CompositeTelemetry"/> class.
+    /// </remarks>
+    /// <param name="inner">The telemetry implementations to delegate to.</param>
     [ExcludeFromCodeCoverage]
-    public class CompositeTelemetry : ITelemetry
+    public class CompositeTelemetry(params ITelemetry[] inner) : ITelemetry
     {
-        private readonly ITelemetry[] _inner;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompositeTelemetry"/> class.
-        /// </summary>
-        /// <param name="inner">The telemetry implementations to delegate to.</param>
-        public CompositeTelemetry(params ITelemetry[] inner)
-        {
-            _inner = inner;
-        }
+        private readonly ITelemetry[] _inner = inner;
 
         /// <inheritdoc />
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
