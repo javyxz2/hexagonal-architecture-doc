@@ -98,6 +98,19 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
         {
             ArgumentNullException.ThrowIfNull(pathBase);
 
+            // Redirect root path to Swagger UI
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/" || context.Request.Path == string.Empty)
+                {
+                    var swaggerPath = pathBase.IsDefault ? "/swagger/index.html" : $"{pathBase.CurrentWithoutTrailingSlash}/swagger/index.html";
+                    context.Response.Redirect(swaggerPath);
+                    return;
+                }
+
+                await next();
+            });
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger(options =>
             {
