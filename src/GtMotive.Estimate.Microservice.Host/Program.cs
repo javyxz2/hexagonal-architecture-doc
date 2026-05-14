@@ -13,8 +13,6 @@ using GtMotive.Estimate.Microservice.Api.Authentication;
 using GtMotive.Estimate.Microservice.Host.Configuration;
 using GtMotive.Estimate.Microservice.Host.DependencyInjection;
 using GtMotive.Estimate.Microservice.Infrastructure;
-using GtMotive.Estimate.Microservice.Infrastructure.MongoDb;
-using GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Settings;
 using GtMotive.Estimate.Microservice.Infrastructure.Persistence;
 
 using Microsoft.ApplicationInsights.Extensibility;
